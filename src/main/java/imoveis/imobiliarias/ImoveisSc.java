@@ -3,7 +3,9 @@ package imoveis.imobiliarias;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.List;
 
+import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -13,6 +15,7 @@ import imoveis.base.IImovel;
 import imoveis.base.Imobiliaria;
 import imoveis.base.ImobiliariaHtml;
 import imoveis.base.Imovel;
+import imoveis.utils.Utils;
 
 public class ImoveisSc extends ImobiliariaHtml {
 
@@ -194,8 +197,12 @@ public class ImoveisSc extends ImobiliariaHtml {
     }
 
     public static void main(String[] args) {
-        Imobiliaria imo = new ImoveisSc("apartamento");
-        imo.getImoveis();
+        Imobiliaria imobiliaria = new ImoveisSc("apartamento");
+        List<IImovel> imos = imobiliaria.getImoveis();
+        for (IImovel imo : imos) {
+            JSONObject json = Utils.imovelToJson(imo);
+            System.out.println(json.toString());
+        }
     }
 
 }
