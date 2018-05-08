@@ -24,5 +24,4 @@ public abstract class Imobiliaria implements IImobiliaria {
         return imoveis;
     }
 
-
 }

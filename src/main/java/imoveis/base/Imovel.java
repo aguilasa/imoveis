@@ -57,6 +57,7 @@ public abstract class Imovel implements IImovel {
         carregarAnunciante();
         carregarCondominio();
         carregarEndereco();
+        documento = null;
     }
 
     protected double textoParaReal(String texto) {
