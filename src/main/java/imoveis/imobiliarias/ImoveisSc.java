@@ -9,10 +9,12 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import imoveis.base.IImovel;
 import imoveis.base.Imobiliaria;
+import imoveis.base.ImobiliariaHtml;
 import imoveis.base.Imovel;
 
-public class ImoveisSc extends Imobiliaria {
+public class ImoveisSc extends ImobiliariaHtml {
 
     private static final String URLBASE = "https://www.imoveis-sc.com.br/blumenau/alugar/%s?page=%d";
 
@@ -36,7 +38,7 @@ public class ImoveisSc extends Imobiliaria {
     }
 
     @Override
-    public int numeroPaginas() {
+    public int getPaginas() {
         try {
             Document document = Jsoup.connect(getUrl(1)).get();
             String paginacao = document.select("div.navigation").first().text();
@@ -49,7 +51,7 @@ public class ImoveisSc extends Imobiliaria {
     }
 
     @Override
-    public Imovel newImovel(Element elemento) {
+    public IImovel newImovel(Element elemento) {
         return new ImovelImpl(elemento);
     }
 
@@ -62,28 +64,28 @@ public class ImoveisSc extends Imobiliaria {
         @Override
         public void carregarNome() {
             Element link = elemento.select("h2.imovel-titulo a").first();
-            nome = link.text().trim();
+            setNome(link.text().trim());
         }
 
         @Override
         public void carregarUrl() {
             Element link = elemento.select("h2.imovel-titulo a").first();
-            url = link.attr("href");
+            setUrl(link.attr("href"));
         }
 
         @Override
         public void carregarPreco() {
-            precoStr = elemento.select("span.imovel-preco small").first().text().trim();
+            setPrecoStr(elemento.select("span.imovel-preco small").first().text().trim());
             try {
-                preco = textoParaReal(precoStr);
+                setPreco(textoParaReal(getPrecoStr()));
             } catch (Exception e) {
-                preco = 0;
+                setPreco(0);
             }
         }
 
         @Override
         public void carregarBairro() {
-            bairro = elemento.select("div.imovel-extra strong").first().text().replace("Blumenau, ", "").trim();
+            setBairro(elemento.select("div.imovel-extra strong").first().text().replace("Blumenau, ", "").trim());
         }
 
         @Override
@@ -92,7 +94,7 @@ public class ImoveisSc extends Imobiliaria {
             for (Element dado : dados) {
                 String valor = dado.text().trim();
                 if (valor.toUpperCase().contains("QUARTO")) {
-                    quartos = Integer.valueOf(valor.split(" ")[0].trim());
+                    setQuartos(Integer.valueOf(valor.split(" ")[0].trim()));
                     break;
                 }
             }
@@ -104,7 +106,7 @@ public class ImoveisSc extends Imobiliaria {
             for (Element dado : dados) {
                 String valor = dado.text().trim();
                 if (valor.toUpperCase().contains("VAGA")) {
-                    vagas = Integer.valueOf(valor.split(" ")[0].trim());
+                    setVagas(Integer.valueOf(valor.split(" ")[0].trim()));
                     break;
                 }
             }
@@ -116,7 +118,7 @@ public class ImoveisSc extends Imobiliaria {
             for (Element dado : dados) {
                 String valor = dado.text().trim();
                 if (valor.toUpperCase().contains("SUITE")) {
-                    suites = Integer.valueOf(valor.split(" ")[0].trim());
+                    setSuites(Integer.valueOf(valor.split(" ")[0].trim()));
                     break;
                 }
             }
@@ -128,7 +130,7 @@ public class ImoveisSc extends Imobiliaria {
             for (Element dado : dados) {
                 String valor = dado.text().trim();
                 if (valor.toUpperCase().contains("M²")) {
-                    area = textoParaReal(valor.split(" ")[0].trim());
+                    setArea(textoParaReal(valor.split(" ")[0].trim()));
                     break;
                 }
             }
@@ -136,11 +138,12 @@ public class ImoveisSc extends Imobiliaria {
 
         @Override
         public void carregarAnunciante() {
-            anunciante = elemento.select("a.imovel-anunciante").first().attr("title").trim();
+            String anunciante = elemento.select("a.imovel-anunciante").first().attr("title").trim();
             String[] quebra = anunciante.split(" - ");
             if (quebra.length == 2) {
                 anunciante = quebra[0].trim();
             }
+            setAnunciante(anunciante);
         }
 
         @Override
@@ -157,14 +160,14 @@ public class ImoveisSc extends Imobiliaria {
                             valor = valor.replace("+", "").replace("R$", "").replace("CONDOMÍNIO", "").replace(".", "").replace(",", ".").trim();
                             String[] quebrado = valor.split("\\.");
                             if (quebrado.length == 2) {
-                                condominio = Double.valueOf(valor);
+                                setCondominio(Double.valueOf(valor));
                             } else {
                                 valor = "";
                                 for (int i = 0; i < quebrado.length - 1; i++) {
                                     valor = valor.concat(quebrado[i]);
                                 }
                                 valor = valor.concat(".").concat(quebrado[quebrado.length - 1]);
-                                condominio = Double.valueOf(valor);
+                                setCondominio(Double.valueOf(valor));
                             }
                             break;
                         }
@@ -181,7 +184,7 @@ public class ImoveisSc extends Imobiliaria {
                 Document documento = getDocumento();
                 Elements selecao = documento.select("address.visualizar-endereco-texto");
                 if (!selecao.isEmpty()) {
-                    endereco = selecao.first().text().trim();
+                    setEndereco(selecao.first().text().trim());
                 }
             } catch (IOException e) {
                 throw new RuntimeException(e);

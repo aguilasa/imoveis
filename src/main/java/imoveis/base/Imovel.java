@@ -7,40 +7,44 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
 import lombok.Getter;
+import lombok.Setter;
 
-public abstract class Imovel {
+public abstract class Imovel implements IImovel {
 
-    @Getter
-    protected String nome;
-    @Getter
-    protected String url;
-    @Getter
-    protected double preco;
-    @Getter
-    protected String precoStr;
-    @Getter
-    protected String bairro;
-    @Getter
-    protected String endereco;
-    @Getter
-    protected String anunciante;
-    @Getter
-    protected int quartos;
-    @Getter
-    protected int vagas;
-    @Getter
-    protected double area;
-    @Getter
-    protected int suites;
+    @Getter @Setter
+    private String nome;
+    @Getter @Setter
+    private String url;
+    @Getter @Setter
+    private double preco;
+    @Getter @Setter
+    private String precoStr;
+    @Getter @Setter
+    private String bairro;
+    @Getter @Setter
+    private String endereco;
+    @Getter @Setter
+    private String anunciante;
+    @Getter @Setter
+    private int quartos;
+    @Getter @Setter
+    private int vagas;
+    @Getter @Setter
+    private double area;
+    @Getter @Setter
+    private int suites;
+    @Getter @Setter
+    private double condominio;
+    
     protected Element elemento;
-    @Getter
-    protected double condominio;
+
     private Document documento = null;
 
     public Imovel(Element elemento) {
         this.elemento = elemento;
     }
 
+    @Override
     public void carregar() {
         carregarUrl();
         carregarNome();
@@ -66,25 +70,5 @@ public abstract class Imovel {
         return documento;
     }
 
-    public abstract void carregarNome();
 
-    public abstract void carregarUrl();
-
-    public abstract void carregarPreco();
-
-    public abstract void carregarBairro();
-
-    public abstract void carregarQuartos();
-
-    public abstract void carregarVagas();
-
-    public abstract void carregarSuites();
-
-    public abstract void carregarArea();
-
-    public abstract void carregarAnunciante();
-
-    public abstract void carregarCondominio();
-
-    public abstract void carregarEndereco();
 }
