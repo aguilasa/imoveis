@@ -1,5 +1,7 @@
 package imoveis.imobiliarias;
 
+import static imoveis.utils.Utils.textoParaReal;
+
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;

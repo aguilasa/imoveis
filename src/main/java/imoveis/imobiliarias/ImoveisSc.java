@@ -1,5 +1,7 @@
 package imoveis.imobiliarias;
 
+import static imoveis.utils.Utils.textoParaReal;
+
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.LinkedList;

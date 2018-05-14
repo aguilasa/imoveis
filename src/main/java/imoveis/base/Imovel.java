@@ -44,9 +44,4 @@ public abstract class Imovel implements IImovel {
         carregarCondominio();
         carregarEndereco();
     }
-
-    protected double textoParaReal(String texto) {
-        return Double.valueOf(texto.replace(".", "").replace(",", "."));
-    }
-
 }

@@ -22,4 +22,8 @@ public class Utils {
         json.put("condominio", imovel.getCondominio());
         return json;
     }
+
+    public static double textoParaReal(String texto) {
+        return Double.valueOf(texto.replace(".", "").replace(",", "."));
+    }
 }
