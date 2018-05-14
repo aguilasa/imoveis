@@ -1,11 +1,5 @@
 package imoveis.base;
 
-import java.io.IOException;
-
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-
 import lombok.Getter;
 import lombok.Setter;
 
@@ -36,14 +30,6 @@ public abstract class Imovel implements IImovel {
     @Getter @Setter
     private double condominio;
     
-    protected Element elemento;
-
-    private Document documento = null;
-
-    public Imovel(Element elemento) {
-        this.elemento = elemento;
-    }
-
     @Override
     public void carregar() {
         carregarUrl();
@@ -57,19 +43,10 @@ public abstract class Imovel implements IImovel {
         carregarAnunciante();
         carregarCondominio();
         carregarEndereco();
-        documento = null;
     }
 
     protected double textoParaReal(String texto) {
         return Double.valueOf(texto.replace(".", "").replace(",", "."));
     }
-
-    protected Document getDocumento() throws IOException {
-        if (documento == null) {
-            documento = Jsoup.connect(url).get();
-        }
-        return documento;
-    }
-
 
 }

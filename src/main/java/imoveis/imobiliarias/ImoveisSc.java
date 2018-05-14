@@ -14,7 +14,7 @@ import org.jsoup.select.Elements;
 import imoveis.base.IImovel;
 import imoveis.base.Imobiliaria;
 import imoveis.base.ImobiliariaHtml;
-import imoveis.base.Imovel;
+import imoveis.base.ImovelHtml;
 import imoveis.utils.Utils;
 
 public class ImoveisSc extends ImobiliariaHtml {
@@ -58,7 +58,7 @@ public class ImoveisSc extends ImobiliariaHtml {
         return new ImovelImpl(elemento);
     }
 
-    private class ImovelImpl extends Imovel {
+    private class ImovelImpl extends ImovelHtml {
 
         public ImovelImpl(Element elemento) {
             super(elemento);

@@ -22,6 +22,7 @@ import org.json.JSONObject;
 import imoveis.base.IImovel;
 import imoveis.base.Imobiliaria;
 import imoveis.base.ImobiliariaJson;
+import imoveis.base.ImovelJson;
 import imoveis.base.Parametro;
 import imoveis.utils.Utils;
 
@@ -55,12 +56,17 @@ public class Orbi extends ImobiliariaJson {
 
     @Override
     public JSONArray getElementos(String url) {
-        return null;
+        try {
+            JSONObject json = getJson(url);
+            return json.getJSONObject("_embedded").getJSONArray("imovel");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public IImovel newImovel(JSONObject elemento) {
-        return null;
+        return new Imovel(elemento);
     }
 
     private JSONObject getJson(String url) throws Exception {
@@ -109,7 +115,97 @@ public class Orbi extends ImobiliariaJson {
         parametros.add(new Parametro("categoria", tipo.equalsIgnoreCase("apartamento") ? "2" : "1"));
         return parametros;
     }
-    
+
+    private class Imovel extends ImovelJson {
+
+        public Imovel(JSONObject elemento) {
+            super(elemento);
+        }
+
+        @Override
+        public void carregarNome() {
+            setNome(elemento.getString("titulo"));
+        }
+
+        @Override
+        public void carregarUrl() {
+            setUrl(elemento.getJSONObject("_links").getJSONObject("self").getString("href"));
+        }
+
+        @Override
+        public void carregarPreco() {
+            setPreco(textoParaReal(elemento.getString("valor")));
+        }
+
+        @Override
+        public void carregarBairro() {
+            setBairro(elemento.getJSONObject("bairro").getString("nome"));
+        }
+
+        @Override
+        public void carregarQuartos() {
+            String valor = buscarCaracteristica("quarto");
+            if (!valor.isEmpty()) {
+                setQuartos(Integer.valueOf(valor));
+            }
+        }
+
+        @Override
+        public void carregarVagas() {
+            String valor = buscarCaracteristica("garagem");
+            if (!valor.isEmpty()) {
+                setVagas(Integer.valueOf(valor));
+            }
+        }
+
+        @Override
+        public void carregarSuites() {
+            String valor = buscarCaracteristica("suíte");
+            if (!valor.isEmpty()) {
+                setSuites(Integer.valueOf(valor));
+            }
+        }
+
+        @Override
+        public void carregarArea() {
+            String valor = buscarCaracteristica("área");
+            if (!valor.isEmpty()) {
+                setArea(textoParaReal(valor));
+            }
+        }
+
+        @Override
+        public void carregarAnunciante() {
+            setAnunciante("Orbi");
+        }
+
+        @Override
+        public void carregarCondominio() {
+            String valor = buscarCaracteristica("descricao");
+            if (!valor.isEmpty()) {
+
+            }
+        }
+
+        @Override
+        public void carregarEndereco() {
+            setEndereco(elemento.getString("rua"));
+        }
+
+        private String buscarCaracteristica(String nome) {
+            JSONArray caracteristicas = elemento.getJSONArray("caracteristica");
+            for (int i = 0; i < caracteristicas.length(); i++) {
+                JSONObject object = caracteristicas.getJSONObject(i);
+                String nomeCaracteristica = object.getJSONObject("caracteristica").getString("nome");
+                if (nome.equalsIgnoreCase(nomeCaracteristica)) {
+                    return object.getString("valor");
+                }
+            }
+            return "";
+        }
+
+    }
+
     public static void main(String[] args) {
         Imobiliaria imobiliaria = new Orbi("apartamento");
         List<IImovel> imos = imobiliaria.getImoveis();

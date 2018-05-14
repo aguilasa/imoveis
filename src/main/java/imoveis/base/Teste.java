@@ -31,6 +31,9 @@ public class Teste {
         String url = uri.toString();
 
         JSONObject json = getJson(url);
+        if (json.has("_embedded")) {
+            json.getJSONObject("_embedded").getJSONArray("imovel");
+        }
         System.out.println(json.toString(1));
     }
 
