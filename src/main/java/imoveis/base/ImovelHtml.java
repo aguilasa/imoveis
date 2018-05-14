@@ -22,10 +22,13 @@ public abstract class ImovelHtml extends Imovel {
         documento = null;
     }
 
-
-    protected Document getDocumento() throws IOException {
+    protected Document getDocumento() {
         if (documento == null) {
-            documento = Jsoup.connect(getUrl()).get();
+            try {
+                documento = Jsoup.connect(getUrl()).get();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
         return documento;
     }

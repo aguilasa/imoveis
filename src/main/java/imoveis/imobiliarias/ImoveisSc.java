@@ -153,46 +153,38 @@ public class ImoveisSc extends ImobiliariaHtml {
 
         @Override
         public void carregarCondominio() {
-            try {
-                Document documento = getDocumento();
-                Elements dados = documento.select("li.visualizacao-caracteristica-item");
-                if (!dados.isEmpty()) {
-                    Element dado = dados.first();
-                    dados = dado.select("ul li");
-                    for (Element li : dados) {
-                        String valor = li.text().toUpperCase().trim();
-                        if (valor.contains("CONDOMÍNIO")) {
-                            valor = valor.replace("+", "").replace("R$", "").replace("CONDOMÍNIO", "").replace(".", "").replace(",", ".").trim();
-                            String[] quebrado = valor.split("\\.");
-                            if (quebrado.length == 2) {
-                                setCondominio(Double.valueOf(valor));
-                            } else {
-                                valor = "";
-                                for (int i = 0; i < quebrado.length - 1; i++) {
-                                    valor = valor.concat(quebrado[i]);
-                                }
-                                valor = valor.concat(".").concat(quebrado[quebrado.length - 1]);
-                                setCondominio(Double.valueOf(valor));
+            Document documento = getDocumento();
+            Elements dados = documento.select("li.visualizacao-caracteristica-item");
+            if (!dados.isEmpty()) {
+                Element dado = dados.first();
+                dados = dado.select("ul li");
+                for (Element li : dados) {
+                    String valor = li.text().toUpperCase().trim();
+                    if (valor.contains("CONDOMÍNIO")) {
+                        valor = valor.replace("+", "").replace("R$", "").replace("CONDOMÍNIO", "").replace(".", "").replace(",", ".").trim();
+                        String[] quebrado = valor.split("\\.");
+                        if (quebrado.length == 2) {
+                            setCondominio(Double.valueOf(valor));
+                        } else {
+                            valor = "";
+                            for (int i = 0; i < quebrado.length - 1; i++) {
+                                valor = valor.concat(quebrado[i]);
                             }
-                            break;
+                            valor = valor.concat(".").concat(quebrado[quebrado.length - 1]);
+                            setCondominio(Double.valueOf(valor));
                         }
+                        break;
                     }
                 }
-            } catch (IOException e) {
-                throw new RuntimeException(e);
             }
         }
 
         @Override
         public void carregarEndereco() {
-            try {
-                Document documento = getDocumento();
-                Elements selecao = documento.select("address.visualizar-endereco-texto");
-                if (!selecao.isEmpty()) {
-                    setEndereco(selecao.first().text().trim());
-                }
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+            Document documento = getDocumento();
+            Elements selecao = documento.select("address.visualizar-endereco-texto");
+            if (!selecao.isEmpty()) {
+                setEndereco(selecao.first().text().trim());
             }
         }
 

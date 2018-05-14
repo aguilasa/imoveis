@@ -1,10 +1,18 @@
 package imoveis.utils;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.json.JSONObject;
 
 import imoveis.base.IImovel;
 
 public class Utils {
+
+    private static final String valor_padrao_um = "R\\$\\s*([0-9]*\\.*[0-9]+,[0-9]{2})(\\s[\\wÀ-ú]+)*(\\scondomínio)";
+    private static final String valor_padrao_dois = "(\\scondomínio)(\\s[\\wÀ-ú:\\.]*)*R\\$\\s*([0-9]*\\.*[0-9]+,[0-9]{2})";
+    private static final Pattern padrao_um = Pattern.compile(valor_padrao_um, Pattern.CASE_INSENSITIVE);
+    private static final Pattern padrao_dois = Pattern.compile(valor_padrao_dois, Pattern.CASE_INSENSITIVE);
 
     public static JSONObject imovelToJson(IImovel imovel) {
         JSONObject json = new JSONObject();
@@ -25,5 +33,20 @@ public class Utils {
 
     public static double textoParaReal(String texto) {
         return Double.valueOf(texto.replace(".", "").replace(",", "."));
+    }
+
+    public static double buscarCondominio(String texto) {
+        Matcher m = padrao_um.matcher(texto);
+        if (m.find()) {
+            return textoParaReal(m.group(1));
+        } else {
+            m = padrao_dois.matcher(texto);
+            if (m.find()) {
+                for (int i = 0; i < m.groupCount(); i++) {
+                    System.out.println(i + " - " + m.group(i));
+                }
+            }
+        }
+        return 0;
     }
 }
