@@ -1,5 +1,6 @@
 package imoveis.imobiliarias;
 
+import static imoveis.utils.Utils.buscarCondominio;
 import static imoveis.utils.Utils.textoParaReal;
 
 import java.io.IOException;
@@ -183,9 +184,9 @@ public class Orbi extends ImobiliariaJson {
 
         @Override
         public void carregarCondominio() {
-            String valor = buscarCaracteristica("descricao");
+            String valor = elemento.getString("descricao");
             if (!valor.isEmpty()) {
-
+                setCondominio(buscarCondominio(valor));
             }
         }
 
