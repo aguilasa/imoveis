@@ -42,9 +42,7 @@ public class Utils {
         } else {
             m = padrao_dois.matcher(texto);
             if (m.find()) {
-                for (int i = 0; i < m.groupCount(); i++) {
-                    System.out.println(i + " - " + m.group(i));
-                }
+                return textoParaReal(m.group(3));
             }
         }
         return 0;
