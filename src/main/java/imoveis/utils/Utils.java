@@ -10,7 +10,7 @@ import imoveis.base.IImovel;
 public class Utils {
 
     private static final String valor_padrao_um = "R\\$\\s*([0-9]*\\.*[0-9]+,[0-9]{2})(\\s[\\wÀ-ú]+)*(\\scondomínio)";
-    private static final String valor_padrao_dois = "(\\scondomínio)(\\s[\\wÀ-ú:\\.]*)*R\\$\\s*([0-9]*\\.*[0-9]+,[0-9]{2})";
+    private static final String valor_padrao_dois = "(\\scondomínio:*)(\\s[\\wÀ-ú:\\.]*)*R\\$:*\\s*([0-9]*\\.*[0-9]+,[0-9]{2})";
     private static final Pattern padrao_um = Pattern.compile(valor_padrao_um, Pattern.CASE_INSENSITIVE);
     private static final Pattern padrao_dois = Pattern.compile(valor_padrao_dois, Pattern.CASE_INSENSITIVE);
 

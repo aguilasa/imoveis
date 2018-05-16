@@ -15,6 +15,7 @@ import imoveis.base.IImovel;
 import imoveis.base.Imobiliaria;
 import imoveis.base.ImobiliariaHtml;
 import imoveis.base.ImovelHtml;
+import imoveis.excel.Excel;
 import imoveis.utils.Utils;
 
 public class Abelardo extends ImobiliariaHtml {
@@ -161,10 +162,13 @@ public class Abelardo extends ImobiliariaHtml {
     public static void main(String[] args) {
         Imobiliaria imobiliaria = new Abelardo("apartamento");
         List<IImovel> imos = imobiliaria.getImoveis();
+        Excel.getInstance().clear();
         for (IImovel imo : imos) {
+            Excel.getInstance().addImovel(imo);
             JSONObject json = Utils.imovelToJson(imo);
             System.out.println(json.toString());
         }
+        Excel.getInstance().gerar();
     }
 
 }
