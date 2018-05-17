@@ -1,6 +1,6 @@
 package imoveis.imobiliarias;
 
-import static imoveis.utils.Utils.buscarCondominio;
+import static imoveis.utils.Utils.*;
 import static imoveis.utils.Utils.textoParaReal;
 
 import java.io.IOException;
@@ -32,6 +32,7 @@ import imoveis.utils.Utils;
 public class Orbi extends ImobiliariaJson {
 
     private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36";
+    private static final String URL = "http://www.orbi-imoveis.com.br/imovel/detalhes/%s/%s";
     private static final Parametro[] PARAMETROS = { new Parametro("ativo", "1"), new Parametro("quantidade_itens", "15"), new Parametro("cidade", "8377"), new Parametro("tipo", "2"), new Parametro("order", "ordem"), new Parametro("order_type", "asc") };
 
     public Orbi(String tipo) {
@@ -132,7 +133,7 @@ public class Orbi extends ImobiliariaJson {
 
         @Override
         public void carregarUrl() {
-            setUrl(elemento.getJSONObject("_links").getJSONObject("self").getString("href"));
+            setUrl(String.format(URL, elemento.getString("referencia"), slug(elemento.getString("titulo"))));
         }
 
         @Override

@@ -85,6 +85,9 @@ public class Excel {
         int linha = 1;
         for (IImovel imovel : imoveis) {
             Row row = sheet.getRow(linha);
+            if (row == null) {
+                row = sheet.createRow(linha);
+            }
             Cell cell = row.createCell(0);
             cell.setCellValue(imovel.getNome());
             cell = row.createCell(1);
