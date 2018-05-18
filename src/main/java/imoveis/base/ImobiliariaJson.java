@@ -13,7 +13,8 @@ public abstract class ImobiliariaJson extends Imobiliaria {
         int paginas = getPaginas();
 
         for (int i = 1; i <= paginas; i++) {
-            String url = getUrl(i);
+            setPagina(i);
+            String url = getUrl();
             JSONArray elementos = getElementos(url);
             int total = elementos.length();
             for (int j = 0; j < total; j++) {

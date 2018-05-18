@@ -7,6 +7,10 @@ public interface IImobiliaria {
     String getTipo();
 
     void setTipo(String tipo);
+    
+    int getPagina();
+    
+    void setPagina(int pagina);
 
     int getPaginas();
 
@@ -14,5 +18,5 @@ public interface IImobiliaria {
     
     void carregar();
     
-    String getUrl(int pagina);
+    String getUrl();
 }

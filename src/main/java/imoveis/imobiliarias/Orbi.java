@@ -50,7 +50,7 @@ public class Orbi extends ImobiliariaJson {
     }
 
     @Override
-    public String getUrl(int pagina) {
+    public String getUrl() {
         try {
             return getURI(pagina).toString();
         } catch (URISyntaxException e) {

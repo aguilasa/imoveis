@@ -19,19 +19,19 @@ import imoveis.base.ImovelHtml;
 import imoveis.excel.Excel;
 import imoveis.utils.Utils;
 
-public class Abelardo extends ImobiliariaHtml {
+public class ACRC extends ImobiliariaHtml {
 
-    private static final String IMOVELBASE = "http://www.abelardoimoveis.com.br";
-    private static final String URLBASE = "http://www.abelardoimoveis.com.br/imoveis-tipo-%s-para-locacao-em-blumenau-pg-%s";
+    private static final String IMOVELBASE = "https://www.acrcimoveis.com.br";
+    private static final String URLBASE = "https://www.acrcimoveis.com.br/alugar/sc/sc/blumenau/%s/ordem-valor/resultado-crescente/quantidade-48/pagina-%d/";
 
-    public Abelardo(String tipo) {
+    public ACRC(String tipo) {
         super(tipo);
     }
 
     @Override
     public Elements getElementos() {
         Document document = getDocument(getUrl());
-        return document.select("div.imovel");
+        return document.select("div.resultado");
     }
 
     @Override
@@ -42,7 +42,7 @@ public class Abelardo extends ImobiliariaHtml {
     @Override
     public int getPaginas() {
         Document document = getDocument();
-        Elements paginas = document.select("ul.nav-paginas li a");
+        Elements paginas = document.select("ul.pagination li a");
         String valor = paginas.get(paginas.size() - 2).text();
         return Integer.valueOf(valor);
     }
@@ -65,21 +65,21 @@ public class Abelardo extends ImobiliariaHtml {
 
         @Override
         public void carregarNome() {
-            Element link = elemento.select("a.visualizar-imovel").first();
+            Element link = elemento.select("div.foto a").first().select("img").first();
             setNome(link.attr("title"));
         }
 
         @Override
         public void carregarUrl() {
-            Element link = elemento.select("a.visualizar-imovel").first();
+            Element link = elemento.select("div.foto a").first();
             setUrl(IMOVELBASE.concat(link.attr("href")));
         }
 
         @Override
         public void carregarPreco() {
-            setPrecoStr(elemento.select("strong.preco-imovel").first().text().trim());
+            setPrecoStr(elemento.select("div.valor h5").first().text().trim());
             try {
-                setPreco(textoParaReal(getPrecoStr()));
+                setPreco(textoParaReal(getPrecoStr().replace("R$", "")));
             } catch (Exception e) {
                 setPreco(0);
             }
@@ -87,17 +87,7 @@ public class Abelardo extends ImobiliariaHtml {
 
         @Override
         public void carregarBairro() {
-            Elements valores = elemento.select("div.endereco-imovel");
-            if (!valores.isEmpty()) {
-                Element valor = valores.first();
-                String texto = valor.text().trim();
-                Elements span = valor.select("span");
-                if (!span.isEmpty()) {
-                    texto = texto.replace(span.first().text().trim(), "");
-                }
-                texto = texto.replaceAll("Blumenau -", "").trim();
-                setBairro(texto);
-            }
+            setBairro(elemento.select("h4.bairro").first().text().trim());
         }
 
         @Override
@@ -138,7 +128,7 @@ public class Abelardo extends ImobiliariaHtml {
 
         @Override
         public void carregarAnunciante() {
-            setAnunciante("Abelardo");
+            setAnunciante("ACRC");
         }
 
         @Override
@@ -158,7 +148,7 @@ public class Abelardo extends ImobiliariaHtml {
     }
 
     public static void main(String[] args) {
-        Imobiliaria imobiliaria = new Abelardo("apartamento");
+        Imobiliaria imobiliaria = new ACRC("apartamento");
         List<IImovel> imos = imobiliaria.getImoveis();
         Excel.getInstance().clear();
         for (IImovel imo : imos) {

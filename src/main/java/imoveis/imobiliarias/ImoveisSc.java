@@ -2,13 +2,13 @@ package imoveis.imobiliarias;
 
 import static imoveis.utils.Utils.textoParaReal;
 
-import java.io.IOException;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.json.JSONObject;
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -28,31 +28,28 @@ public class ImoveisSc extends ImobiliariaHtml {
     }
 
     @Override
-    public Elements getElementos(String url) {
-        try {
-            Document document = Jsoup.connect(url).get();
-            return document.select("article.imovel");
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+    public Elements getElementos() {
+        Document document = getDocument(getUrl());
+        return document.select("article.imovel");
     }
 
     @Override
-    public String getUrl(int pagina) {
+    public String getUrl() {
         return String.format(URLBASE, tipo, pagina);
     }
 
     @Override
     public int getPaginas() {
-        try {
-            Document document = Jsoup.connect(getUrl(1)).get();
-            String paginacao = document.select("div.navigation").first().text();
-            paginacao = paginacao.replaceAll("[^-?0-9]+", " ");
-            LinkedList<String> lista = new LinkedList<>(Arrays.asList(paginacao.trim().split(" ")));
-            return Integer.valueOf(lista.getLast());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        Document document = getDocument();
+        String paginacao = document.select("div.navigation").first().text();
+        paginacao = paginacao.replaceAll("[^-?0-9]+", " ");
+        LinkedList<String> lista = new LinkedList<>(Arrays.asList(paginacao.trim().split(" ")));
+        return Integer.valueOf(lista.getLast());
+    }
+
+    @Override
+    public Map<String, String> getPayload() {
+        return new LinkedHashMap<>();
     }
 
     @Override
