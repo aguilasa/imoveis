@@ -29,7 +29,7 @@ public abstract class ImovelHtml extends Imovel {
             try {
                 documento = Jsoup.connect(getUrl()).timeout(0).userAgent(USER_AGENT).get();
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                documento = new Document("");
             }
         }
         return documento;

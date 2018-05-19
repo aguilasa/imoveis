@@ -1,12 +1,13 @@
 package imoveis.imobiliarias;
 
-import static imoveis.utils.Utils.buscarCondominio;
 import static imoveis.utils.Utils.textoParaReal;
 
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.json.JSONObject;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -93,36 +94,49 @@ public class ACRC extends ImobiliariaHtml {
         @Override
         public void carregarQuartos() {
             Document documento = getDocumento();
-            Elements dados = documento.select("div.dormitorios div.quantidade");
+            Elements dados = documento.select("div[title=\"Dormitórios\"]");
             if (!dados.isEmpty()) {
-                setQuartos(Integer.valueOf(dados.first().text().trim()));
+                dados = dados.first().select("span");
+                if (!dados.isEmpty()) {
+                    String valor = dados.first().text().trim();
+                    if (StringUtils.isNumeric(valor)) {
+                        setQuartos(Integer.valueOf(valor));
+                    }
+                }
             }
         }
 
         @Override
         public void carregarVagas() {
             Document documento = getDocumento();
-            Elements dados = documento.select("div.garagens div.quantidade");
+            Elements dados = documento.select("div[title=\"Vagas\"]");
             if (!dados.isEmpty()) {
-                setVagas(Integer.valueOf(dados.first().text().trim()));
+                dados = dados.first().select("span");
+                if (!dados.isEmpty()) {
+                    String valor = dados.first().text().trim();
+                    if (StringUtils.isNumeric(valor)) {
+                        setVagas(Integer.valueOf(valor));
+                    }
+                }
             }
         }
 
         @Override
         public void carregarSuites() {
-            Document documento = getDocumento();
-            Elements dados = documento.select("div.suites div.quantidade");
-            if (!dados.isEmpty()) {
-                setSuites(Integer.valueOf(dados.first().text().trim()));
-            }
         }
 
         @Override
         public void carregarArea() {
             Document documento = getDocumento();
-            Elements dados = documento.select("div.areaprivada div.quantidade");
+            Elements dados = documento.select("div[title=\"Áreas\"]");
             if (!dados.isEmpty()) {
-                setArea(textoParaReal(dados.first().text().trim()));
+                dados = dados.first().select("span");
+                if (!dados.isEmpty()) {
+                    String valor = dados.first().text().trim().replaceAll("[^\\.0123456789]","");
+                    if (NumberUtils.isCreatable(valor)) {
+                        setArea(Double.valueOf(valor));
+                    }
+                }
             }
         }
 
@@ -134,10 +148,15 @@ public class ACRC extends ImobiliariaHtml {
         @Override
         public void carregarCondominio() {
             Document documento = getDocumento();
-            Elements resumo = documento.select("div.resumo-imovel");
-            if (!resumo.isEmpty()) {
-                String texto = resumo.first().text();
-                setCondominio(buscarCondominio(texto));
+            Elements dados = documento.select("div[title=\"Valores\"]");
+            if (!dados.isEmpty()) {
+                dados = dados.first().select("span span");
+                if (!dados.isEmpty()) {
+                    String valor = dados.get(1).text().replace("R$", "").replace(".", "").replace(",", ".").trim();
+                    if (NumberUtils.isCreatable(valor)) {
+                        setCondominio(Double.valueOf(valor));
+                    }
+                }
             }
         }
 

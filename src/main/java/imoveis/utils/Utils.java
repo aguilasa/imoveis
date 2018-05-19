@@ -11,8 +11,10 @@ public class Utils {
 
     private static final String valor_padrao_um = "R\\$\\s*([0-9]*\\.*[0-9]+,[0-9]{2})(\\s[\\wÀ-ú]+)*(\\scondomínio)";
     private static final String valor_padrao_dois = "(\\scondomínio:*)(\\s[\\wÀ-ú:\\.]*)*R\\$:*\\s*([0-9]*\\.*[0-9]+,[0-9]{2})";
+    private static final String valor_padrao = "R\\$\\s*([0-9]*\\.*[0-9]+,[0-9]{2})";
     private static final Pattern padrao_um = Pattern.compile(valor_padrao_um, Pattern.CASE_INSENSITIVE);
     private static final Pattern padrao_dois = Pattern.compile(valor_padrao_dois, Pattern.CASE_INSENSITIVE);
+    private static final Pattern padrao = Pattern.compile(valor_padrao, Pattern.CASE_INSENSITIVE);
 
     public static JSONObject imovelToJson(IImovel imovel) {
         JSONObject json = new JSONObject();
@@ -44,6 +46,14 @@ public class Utils {
             if (m.find()) {
                 return textoParaReal(m.group(3));
             }
+        }
+        return 0;
+    }
+    
+    public static double extrairValor(String texto) {
+        Matcher m = padrao.matcher(texto);
+        if (m.find()) {
+            return textoParaReal(m.group(1));
         }
         return 0;
     }

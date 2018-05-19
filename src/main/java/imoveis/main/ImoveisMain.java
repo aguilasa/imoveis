@@ -2,27 +2,62 @@ package imoveis.main;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import imoveis.base.IImobiliaria;
+import imoveis.base.IImovel;
 import imoveis.excel.Excel;
+import imoveis.imobiliarias.ACRC;
 import imoveis.imobiliarias.Abelardo;
 import imoveis.imobiliarias.Conexao;
 import imoveis.imobiliarias.Orbi;
+import imoveis.imobiliarias.Portal;
 
 public class ImoveisMain {
 
     public static void main(String[] args) {
-        Excel.getInstance().clear();
-        List<IImobiliaria> imobiliarias = new LinkedList<>();
-        imobiliarias.add(new Orbi("apartamento"));
-        imobiliarias.add(new Conexao("apartamento"));
-        imobiliarias.add(new Abelardo("apartamento"));
+        new ImoveisMain().run();
+    }
 
-        for (IImobiliaria i : imobiliarias) {
-            Excel.getInstance().addTodosImovel(i.getImoveis());
+    public void run() {
+        Excel.getInstance().clear();
+        List<Runnable> runners = new LinkedList<>();
+        runners.add(new Runner(new Orbi("apartamento")));
+        runners.add(new Runner(new Conexao("apartamento")));
+        runners.add(new Runner(new Abelardo("apartamento")));
+        runners.add(new Runner(new ACRC("apartamento")));
+        runners.add(new Runner(new Portal("apartamento")));
+
+        int nThreads = Runtime.getRuntime().availableProcessors() + 1;
+        ExecutorService executor = Executors.newFixedThreadPool(nThreads);
+        for (Runnable runner : runners) {
+            executor.execute(runner);
+        }
+        executor.shutdown();
+        try {
+            executor.awaitTermination(20, TimeUnit.MINUTES);
+            Excel.getInstance().gerar();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    class Runner implements Runnable {
+
+        private IImobiliaria imobiliaria;
+
+        public Runner(IImobiliaria imobiliaria) {
+            this.imobiliaria = imobiliaria;
         }
 
-        Excel.getInstance().gerar();
+        @Override
+        public void run() {
+            List<IImovel> imoveis = imobiliaria.getImoveis();
+            Excel.getInstance().addTodosImovel(imoveis);
+        }
+
     }
 
 }
