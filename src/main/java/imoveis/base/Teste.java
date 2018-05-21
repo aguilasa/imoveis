@@ -5,12 +5,10 @@
  */
 package imoveis.base;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Random;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.utils.URIBuilder;
+
+import imoveis.utils.HttpClientHelper;
 
 public class Teste {
 
@@ -18,37 +16,23 @@ public class Teste {
         new Teste().run();
     }
 
-    public void run() {
-        List<Runnable> runners = new LinkedList<>();
-        for (int i = 0; i < 100; i++) {
-            runners.add(new Runner());
+    public void run() throws Exception {
+        try (HttpClientHelper helper = new HttpClientHelper()) {
+            HttpGet httpget = helper.httpGet("http://www.lfernando.com.br/");
+            helper.executeGet(httpget);
+            httpget = helper.httpGet("http://www.lfernando.com.br/filial?id=1");
+            helper.executeGet(httpget);
+            
+            URIBuilder builder = new URIBuilder();
+            builder.setScheme("http").setHost("www.lfernando.com.br").setPath("/pesquisa");
+            builder.addParameter("opcao", "Locação");
+            builder.addParameter("cidade", "Blumenau/SC");
+            builder.addParameter("tipo", "apartamento");
+            builder.addParameter("init", "0");
+            
+            httpget = helper.httpGet(builder.build().toString());
+            System.out.println(helper.executeGet(httpget));
         }
-        ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() + 1);
-        for (Runnable runner : runners) {
-            executor.execute(runner);
-        }
-        executor.shutdown();
-        try {
-            executor.awaitTermination(20, TimeUnit.MINUTES);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
-    }
-
-    class Runner implements Runnable {
-
-        @Override
-        public void run() {
-            System.out.println(Thread.currentThread().getId());
-            Random rand = new Random();
-            int millis = rand.nextInt(1000) + 1;
-            try {
-                Thread.sleep(millis);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
     }
 
 }

@@ -29,6 +29,8 @@ public abstract class Imovel implements IImovel {
     private int suites;
     @Getter @Setter
     private double condominio;
+    @Getter @Setter
+    private TipoImovel tipoImovel;
     
     @Override
     public void carregar() {

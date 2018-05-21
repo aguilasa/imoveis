@@ -1,6 +1,8 @@
 package imoveis.imobiliarias;
 
-import static imoveis.utils.Utils.*;
+import static imoveis.utils.Utils.buscarCondominio;
+import static imoveis.utils.Utils.getHttpClient;
+import static imoveis.utils.Utils.slug;
 import static imoveis.utils.Utils.textoParaReal;
 
 import java.io.IOException;
@@ -17,7 +19,6 @@ import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -31,7 +32,6 @@ import imoveis.utils.Utils;
 
 public class Orbi extends ImobiliariaJson {
 
-    private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36";
     private static final String URL = "http://www.orbi-imoveis.com.br/imovel/detalhes/%s/%s";
     private static final Parametro[] PARAMETROS = { new Parametro("ativo", "1"), new Parametro("quantidade_itens", "15"), new Parametro("cidade", "8377"), new Parametro("tipo", "2"), new Parametro("order", "ordem"), new Parametro("order_type", "asc") };
 
@@ -70,11 +70,11 @@ public class Orbi extends ImobiliariaJson {
 
     @Override
     public IImovel newImovel(JSONObject elemento) {
-        return new Imovel(elemento);
+        return new Imovel(elemento, tipo);
     }
 
     private JSONObject getJson(String url) throws Exception {
-        try (CloseableHttpClient httpclient = HttpClients.custom().setUserAgent(USER_AGENT).build()) {
+        try (CloseableHttpClient httpclient = getHttpClient()) {
             HttpGet httpget = new HttpGet(url);
             httpget.addHeader("Accept", "application/json");
             ResponseHandler<JSONObject> responseHandler = new ResponseHandler<JSONObject>() {
@@ -122,8 +122,8 @@ public class Orbi extends ImobiliariaJson {
 
     private class Imovel extends ImovelJson {
 
-        public Imovel(JSONObject elemento) {
-            super(elemento);
+        public Imovel(JSONObject elemento, String tipo) {
+            super(elemento, tipo);
         }
 
         @Override

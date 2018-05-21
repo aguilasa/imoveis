@@ -44,8 +44,11 @@ public class ACRC extends ImobiliariaHtml {
     public int getPaginas() {
         Document document = getDocument();
         Elements paginas = document.select("ul.pagination li a");
-        String valor = paginas.get(paginas.size() - 2).text();
-        return Integer.valueOf(valor);
+        if (paginas.size() > 1) {
+            String valor = paginas.get(paginas.size() - 2).text();
+            return Integer.valueOf(valor);
+        }
+        return 1;
     }
 
     @Override
@@ -55,13 +58,13 @@ public class ACRC extends ImobiliariaHtml {
 
     @Override
     public IImovel newImovel(Element elemento) {
-        return new ImovelImpl(elemento);
+        return new ImovelImpl(elemento, tipo);
     }
 
     private class ImovelImpl extends ImovelHtml {
 
-        public ImovelImpl(Element elemento) {
-            super(elemento);
+        public ImovelImpl(Element elemento, String tipo) {
+            super(elemento, tipo);
         }
 
         @Override
@@ -132,7 +135,7 @@ public class ACRC extends ImobiliariaHtml {
             if (!dados.isEmpty()) {
                 dados = dados.first().select("span");
                 if (!dados.isEmpty()) {
-                    String valor = dados.first().text().trim().replaceAll("[^\\.0123456789]","");
+                    String valor = dados.first().text().trim().replaceAll("[^\\.0123456789]", "");
                     if (NumberUtils.isCreatable(valor)) {
                         setArea(Double.valueOf(valor));
                     }
@@ -167,7 +170,7 @@ public class ACRC extends ImobiliariaHtml {
     }
 
     public static void main(String[] args) {
-        Imobiliaria imobiliaria = new ACRC("apartamento");
+        Imobiliaria imobiliaria = new ACRC("casa");
         List<IImovel> imos = imobiliaria.getImoveis();
         Excel.getInstance().clear();
         for (IImovel imo : imos) {

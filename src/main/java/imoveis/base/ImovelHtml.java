@@ -14,8 +14,9 @@ public abstract class ImovelHtml extends Imovel {
 
     private Document documento = null;
 
-    public ImovelHtml(Element elemento) {
+    public ImovelHtml(Element elemento, String tipo) {
         this.elemento = elemento;
+        this.setTipoImovel(TipoImovel.getEnum(tipo));
     }
 
     @Override

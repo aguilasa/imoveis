@@ -43,8 +43,11 @@ public class Abelardo extends ImobiliariaHtml {
     public int getPaginas() {
         Document document = getDocument();
         Elements paginas = document.select("ul.nav-paginas li a");
-        String valor = paginas.get(paginas.size() - 2).text();
-        return Integer.valueOf(valor);
+        if (!paginas.isEmpty()) {
+            String valor = paginas.get(paginas.size() - 2).text();
+            return Integer.valueOf(valor);
+        }
+        return 1;
     }
 
     @Override
@@ -54,13 +57,13 @@ public class Abelardo extends ImobiliariaHtml {
 
     @Override
     public IImovel newImovel(Element elemento) {
-        return new ImovelImpl(elemento);
+        return new ImovelImpl(elemento, tipo);
     }
 
     private class ImovelImpl extends ImovelHtml {
 
-        public ImovelImpl(Element elemento) {
-            super(elemento);
+        public ImovelImpl(Element elemento, String tipo) {
+            super(elemento, tipo);
         }
 
         @Override
@@ -158,7 +161,7 @@ public class Abelardo extends ImobiliariaHtml {
     }
 
     public static void main(String[] args) {
-        Imobiliaria imobiliaria = new Abelardo("apartamento");
+        Imobiliaria imobiliaria = new Abelardo("casa");
         List<IImovel> imos = imobiliaria.getImoveis();
         Excel.getInstance().clear();
         for (IImovel imo : imos) {

@@ -118,6 +118,8 @@ public class Excel {
             cell.setHyperlink(createHyperlink);
             cell = row.createCell(10);
             cell.setCellValue(imovel.getEndereco());
+            cell = row.createCell(11);
+            cell.setCellValue(imovel.getTipoImovel().toString());
             linha++;
 
         }

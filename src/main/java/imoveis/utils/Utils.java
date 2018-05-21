@@ -3,12 +3,15 @@ package imoveis.utils;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.json.JSONObject;
 
 import imoveis.base.IImovel;
 
 public class Utils {
 
+    private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36";
     private static final String valor_padrao_um = "R\\$\\s*([0-9]*\\.*[0-9]+,[0-9]{2})(\\s[\\wÀ-ú]+)*(\\scondomínio)";
     private static final String valor_padrao_dois = "(\\scondomínio:*)(\\s[\\wÀ-ú:\\.]*)*R\\$:*\\s*([0-9]*\\.*[0-9]+,[0-9]{2})";
     private static final String valor_padrao = "R\\$\\s*([0-9]*\\.*[0-9]+,[0-9]{2})";
@@ -49,7 +52,7 @@ public class Utils {
         }
         return 0;
     }
-    
+
     public static double extrairValor(String texto) {
         Matcher m = padrao.matcher(texto);
         if (m.find()) {
@@ -63,13 +66,18 @@ public class Utils {
 
         String from = "ãàáäâẽèéëêìíïîõòóöôùúüûñç·/_,:;";
         String to = "aaaaaeeeeeiiiiooooouuuunc------";
-        
+
         for (int i = 0, l = from.length(); i < l; i++) {
             str = str.replaceAll("" + from.charAt(i), "" + to.charAt(i));
         }
-        
+
         str = str.replaceAll("[^a-z0-9 -]", "").replaceAll(" ", "-").replaceAll("\\-+", "-");
 
         return str;
     }
+
+    public static CloseableHttpClient getHttpClient() {
+        return HttpClients.custom().setUserAgent(USER_AGENT).build();
+    }
+
 }

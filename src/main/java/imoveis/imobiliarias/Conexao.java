@@ -57,13 +57,13 @@ public class Conexao extends ImobiliariaHtml {
 
     @Override
     public IImovel newImovel(Element elemento) {
-        return new ImovelImpl(elemento);
+        return new ImovelImpl(elemento, tipo);
     }
 
     private class ImovelImpl extends ImovelHtml {
 
-        public ImovelImpl(Element elemento) {
-            super(elemento);
+        public ImovelImpl(Element elemento, String tipo) {
+            super(elemento, tipo);
         }
 
         @Override

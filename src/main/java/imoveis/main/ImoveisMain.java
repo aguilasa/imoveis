@@ -12,6 +12,7 @@ import imoveis.excel.Excel;
 import imoveis.imobiliarias.ACRC;
 import imoveis.imobiliarias.Abelardo;
 import imoveis.imobiliarias.Conexao;
+import imoveis.imobiliarias.LFernando;
 import imoveis.imobiliarias.Orbi;
 import imoveis.imobiliarias.Portal;
 
@@ -25,10 +26,17 @@ public class ImoveisMain {
         Excel.getInstance().clear();
         List<Runnable> runners = new LinkedList<>();
         runners.add(new Runner(new Orbi("apartamento")));
+        runners.add(new Runner(new Orbi("casa")));
         runners.add(new Runner(new Conexao("apartamento")));
+        runners.add(new Runner(new Conexao("casa")));
         runners.add(new Runner(new Abelardo("apartamento")));
+        runners.add(new Runner(new Abelardo("casa")));
         runners.add(new Runner(new ACRC("apartamento")));
+        runners.add(new Runner(new ACRC("casa")));
         runners.add(new Runner(new Portal("apartamento")));
+        runners.add(new Runner(new Portal("casa")));
+        runners.add(new Runner(new LFernando("apartamento")));
+        runners.add(new Runner(new LFernando("casa")));
 
         int nThreads = Runtime.getRuntime().availableProcessors() + 1;
         ExecutorService executor = Executors.newFixedThreadPool(nThreads);
