@@ -5,8 +5,12 @@
  */
 package imoveis.base;
 
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.utils.URIBuilder;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.http.NameValuePair;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.message.BasicNameValuePair;
 
 import imoveis.utils.HttpClientHelper;
 
@@ -18,20 +22,25 @@ public class Teste {
 
     public void run() throws Exception {
         try (HttpClientHelper helper = new HttpClientHelper()) {
-            HttpGet httpget = helper.httpGet("http://www.lfernando.com.br/");
-            helper.executeGet(httpget);
-            httpget = helper.httpGet("http://www.lfernando.com.br/filial?id=1");
-            helper.executeGet(httpget);
-            
-            URIBuilder builder = new URIBuilder();
-            builder.setScheme("http").setHost("www.lfernando.com.br").setPath("/pesquisa");
-            builder.addParameter("opcao", "Locação");
-            builder.addParameter("cidade", "Blumenau/SC");
-            builder.addParameter("tipo", "apartamento");
-            builder.addParameter("init", "0");
-            
-            httpget = helper.httpGet(builder.build().toString());
-            System.out.println(helper.executeGet(httpget));
+            List<NameValuePair> params = new ArrayList<>();
+            params.add(new BasicNameValuePair("codTB", "1"));
+            params.add(new BasicNameValuePair("codUF", "0"));
+            params.add(new BasicNameValuePair("codCid", "11"));
+            params.add(new BasicNameValuePair("codBai", "0"));
+            params.add(new BasicNameValuePair("codTP", "2"));
+            params.add(new BasicNameValuePair("qtdQuartos", "0"));
+            params.add(new BasicNameValuePair("qtdSuites", "0"));
+            params.add(new BasicNameValuePair("qtdSalas", "0"));
+            params.add(new BasicNameValuePair("qtdGaragens", "0"));
+            params.add(new BasicNameValuePair("codVal", "Min"));
+            params.add(new BasicNameValuePair("codValBK", "0"));
+            params.add(new BasicNameValuePair("codVal2", "Max"));
+            params.add(new BasicNameValuePair("codValbk2", "0"));
+            params.add(new BasicNameValuePair("searchtype", "2"));
+            params.add(new BasicNameValuePair("codOrd", "1"));
+            params.add(new BasicNameValuePair("pageIndex", "0"));
+            HttpPost httpPost = helper.httpPost("http://www.alianca.imb.br/pesquisa-de-imoveis", params);
+            System.out.println(helper.execute(httpPost));
         }
     }
 

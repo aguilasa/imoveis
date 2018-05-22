@@ -41,12 +41,12 @@ public class LFernando extends ImobiliariaHtml {
     public Document getDocument(String url) {
         try (HttpClientHelper helper = new HttpClientHelper()) {
             HttpGet httpget = helper.httpGet("http://www.lfernando.com.br/");
-            helper.executeGet(httpget);
+            helper.execute(httpget);
             httpget = helper.httpGet("http://www.lfernando.com.br/filial?id=1");
-            helper.executeGet(httpget);
+            helper.execute(httpget);
 
             httpget = helper.httpGet(url);
-            String html = helper.executeGet(httpget);
+            String html = helper.execute(httpget);
             return Jsoup.parse(html);
         } catch (Exception e) {
             throw new RuntimeException(e);

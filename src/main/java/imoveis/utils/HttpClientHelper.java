@@ -2,18 +2,23 @@ package imoveis.utils;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.CookieStore;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.client.BasicCookieStore;
@@ -47,16 +52,32 @@ public class HttpClientHelper implements Closeable {
         return httpget;
     }
 
-    public String executeGet(HttpGet httpGet) throws Exception {
-        return executeGet(httpGet, false);
+    public HttpPost httpPost(String url) {
+        return httpPost(url, null);
     }
 
-    public String executeGet(HttpGet httpGet, boolean empty) throws Exception {
-        return executeGet(httpGet, empty ? emptyResponseHandler() : defaultResponseHandler());
+    public HttpPost httpPost(String url, List<NameValuePair> params) {
+        HttpPost httpPost = new HttpPost(url);
+        if (params != null && !params.isEmpty()) {
+            try {
+                httpPost.setEntity(new UrlEncodedFormEntity(params));
+            } catch (UnsupportedEncodingException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return httpPost;
     }
 
-    public String executeGet(HttpGet httpGet, ResponseHandler<String> responseHandler) throws Exception {
-        return httpClient.execute(httpGet, responseHandler, context);
+    public String execute(HttpUriRequest request) throws Exception {
+        return execute(request, false);
+    }
+
+    public String execute(HttpUriRequest request, boolean empty) throws Exception {
+        return execute(request, empty ? emptyResponseHandler() : defaultResponseHandler());
+    }
+
+    public String execute(HttpUriRequest request, ResponseHandler<String> responseHandler) throws Exception {
+        return httpClient.execute(request, responseHandler, context);
     }
 
     public ResponseHandler<String> defaultResponseHandler() {
