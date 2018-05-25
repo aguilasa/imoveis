@@ -45,7 +45,7 @@ public abstract class ImobiliariaHtml extends Imobiliaria {
             Connection data = Jsoup.connect(url).timeout(0).userAgent(USER_AGENT).data(getPayload());
             return post ? data.post() : data.get();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            return new Document("");
         }
     }
 
