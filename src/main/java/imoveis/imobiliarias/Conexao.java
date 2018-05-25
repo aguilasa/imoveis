@@ -40,8 +40,12 @@ public class Conexao extends ImobiliariaHtml {
     @Override
     public int getPaginas() {
         Document document = getDocument();
-        String valor = document.select("a.paginacao-lista-num").last().text().trim();
-        return Integer.valueOf(valor);
+        Elements dados = document.select("a.paginacao-lista-num");
+        if (!dados.isEmpty()) {
+            String valor = dados.last().text().trim();
+            return Integer.valueOf(valor);
+        }
+        return 1;
     }
 
     @Override

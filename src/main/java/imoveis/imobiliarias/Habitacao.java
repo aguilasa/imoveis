@@ -22,12 +22,12 @@ import imoveis.base.ImovelHtml;
 import imoveis.excel.Excel;
 import imoveis.utils.Utils;
 
-public class Alianca extends ImobiliariaHtml {
+public class Habitacao extends ImobiliariaHtml {
 
     private static final String URLBASE = "http://www.alianca.imb.br";
     private static final String PESQUISA = URLBASE + "/pesquisa-de-imoveis";
 
-    public Alianca(String tipo) {
+    public Habitacao(String tipo) {
         super(tipo);
         setPost(true);
     }
@@ -199,7 +199,7 @@ public class Alianca extends ImobiliariaHtml {
     }
 
     public static void main(String[] args) {
-        Imobiliaria imobiliaria = new Alianca("casa");
+        Imobiliaria imobiliaria = new Habitacao("casa");
         List<IImovel> imos = imobiliaria.getImoveis();
         Excel.getInstance().clear();
         for (IImovel imo : imos) {

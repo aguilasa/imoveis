@@ -11,6 +11,7 @@ import imoveis.base.IImovel;
 import imoveis.excel.Excel;
 import imoveis.imobiliarias.ACRC;
 import imoveis.imobiliarias.Abelardo;
+import imoveis.imobiliarias.Alianca;
 import imoveis.imobiliarias.Conexao;
 import imoveis.imobiliarias.LFernando;
 import imoveis.imobiliarias.Orbi;
@@ -37,6 +38,8 @@ public class ImoveisMain {
         runners.add(new Runner(new Portal("casa")));
         runners.add(new Runner(new LFernando("apartamento")));
         runners.add(new Runner(new LFernando("casa")));
+        runners.add(new Runner(new Alianca("apartamento")));
+        runners.add(new Runner(new Alianca("casa")));
 
         int nThreads = Runtime.getRuntime().availableProcessors() + 1;
         ExecutorService executor = Executors.newFixedThreadPool(nThreads);
