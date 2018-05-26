@@ -49,18 +49,18 @@ public interface IImovel {
     void setCondominio(double condominio);
 
     double getCondominio();
-    
+
     void setTipoImovel(TipoImovel tipo);
 
     TipoImovel getTipoImovel();
 
-    void carregarNome();
-
     void carregarUrl();
 
-    void carregarPreco();
+    void carregarNome();
 
     void carregarBairro();
+
+    void carregarPreco();
 
     void carregarQuartos();
 

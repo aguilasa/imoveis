@@ -2,6 +2,9 @@ package imoveis.main;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -12,12 +15,14 @@ import imoveis.excel.Excel;
 public class RunnerFactory {
 
     private static final String PACKAGE = "imoveis.imobiliarias";
-    private static final String[] CLASSES = { "Abelardo", "ACRC", "Alianca", "Conexao", "Habitacao", "ImoveisSc", "LFernando", "Orbi", "Portal" };
+    private static final List<String> CLASSES = Arrays.asList("Abelardo", "ACRC", "Alianca", "Conexao", "Habitacao", "ImoveisSc", "LFernando", "Orbi", "Portal", "Tropical");
     private static final String[] PARAMETERS = { "apartamento", "casa" };
 
     public List<Runnable> getRunners() {
+        List<String> list = new ArrayList<>(CLASSES);
+        Collections.shuffle(list);
         List<Runnable> runners = new LinkedList<>();
-        for (String name : CLASSES) {
+        for (String name : list) {
             String className = String.format("%s.%s", PACKAGE, name);
             for (String parameter : PARAMETERS) {
                 IImobiliaria object = createObject(className, parameter);

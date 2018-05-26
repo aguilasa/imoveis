@@ -51,8 +51,8 @@ public abstract class ImobiliariaHtml extends Imobiliaria {
 
     public abstract Elements getElementos();
 
-    public abstract IImovel newImovel(Element elemento);
-
     public abstract Map<String, String> getPayload();
+
+    public abstract IImovel newImovel(Element elemento);
 
 }
