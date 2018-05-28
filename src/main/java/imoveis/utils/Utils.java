@@ -79,5 +79,9 @@ public class Utils {
     public static CloseableHttpClient getHttpClient() {
         return HttpClients.custom().setUserAgent(USER_AGENT).build();
     }
+    
+    public static void main(String[] args) {
+        System.out.println(extrairValor("Condomínio aproximadamente R$ 295"));
+    }
 
 }

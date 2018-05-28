@@ -15,7 +15,7 @@ import imoveis.excel.Excel;
 public class RunnerFactory {
 
     private static final String PACKAGE = "imoveis.imobiliarias";
-    private static final List<String> CLASSES = Arrays.asList("Abelardo", "ACRC", "Alianca", "Conexao", "Habitacao", "ImoveisSc", "LFernando", "Orbi", "Portal", "Tropical");
+    private static final List<String> CLASSES = Arrays.asList("Abelardo", "ACRC", "Alianca", "Conexao", "Habitacao", /*"ImoveisSc", */ "LFernando", "Orbi", "Portal", "Tropical", "DinamicaSul");
     private static final String[] PARAMETERS = { "apartamento", "casa" };
 
     public List<Runnable> getRunners() {
