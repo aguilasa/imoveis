@@ -148,7 +148,6 @@ public class DinamicaSul extends ImobiliariaHtml {
                         TextNode textNode = (TextNode) node;
                         String texto = textNode.text();
                         if (texto.toUpperCase().contains("CONDOM")) {
-                            System.out.println(texto);
                             setCondominio(extrairValor(texto));
                             if (getCondominio() > 0) {
                                 break;
