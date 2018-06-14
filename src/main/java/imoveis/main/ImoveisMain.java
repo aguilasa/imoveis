@@ -6,6 +6,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import imoveis.excel.Excel;
+import imoveis.runner.RunnerFactory;
 
 public class ImoveisMain {
 
@@ -15,7 +16,7 @@ public class ImoveisMain {
 
     public void run() {
         Excel.getInstance().clear();
-        List<Runnable> runners = new RunnerFactory().getRunners();
+        List<Runnable> runners = RunnerFactory.getRunners();
 
         int nThreads = Runtime.getRuntime().availableProcessors() + 1;
         ExecutorService executor = Executors.newFixedThreadPool(nThreads);

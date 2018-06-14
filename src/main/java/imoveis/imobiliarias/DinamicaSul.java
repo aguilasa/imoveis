@@ -165,7 +165,7 @@ public class DinamicaSul extends ImobiliariaHtml {
     }
 
     public static void main(String[] args) {
-        Imobiliaria imobiliaria = new DinamicaSul("apartamento");
+        Imobiliaria imobiliaria = new DinamicaSul("casa");
         List<IImovel> imos = imobiliaria.getImoveis();
         Excel.getInstance().clear();
         for (IImovel imo : imos) {

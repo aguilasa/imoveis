@@ -1,4 +1,4 @@
-package imoveis.main;
+package imoveis.runner;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -9,24 +9,25 @@ import java.util.LinkedList;
 import java.util.List;
 
 import imoveis.base.IImobiliaria;
-import imoveis.base.IImovel;
-import imoveis.excel.Excel;
 
 public class RunnerFactory {
 
-    private static final String PACKAGE = "imoveis.imobiliarias";
-    private static final List<String> CLASSES = Arrays.asList("Abelardo", "ACRC", "Alianca", "Conexao", "Habitacao", /*"ImoveisSc", */ "LFernando", "Orbi", "Portal", "Tropical", "DinamicaSul");
-    private static final String[] PARAMETERS = { "apartamento", "casa" };
+    public static final String PACKAGE = "imoveis.imobiliarias";
+    public static final List<String> CLASSES = Arrays.asList("Abelardo", "ACRC", "Alianca", "Conexao", "Habitacao", "ImoveisSc", "LFernando", "Orbi", "Portal", "Tropical", "DinamicaSul");
+    public static final String[] PARAMETERS = { "apartamento", "casa" };
 
-    public List<Runnable> getRunners() {
-        List<String> list = new ArrayList<>(CLASSES);
+    public static List<Runnable> getRunners() {
+        return getRunners(new ArrayList<>(CLASSES));
+    }
+
+    public static List<Runnable> getRunners(List<String> list) {
         Collections.shuffle(list);
         List<Runnable> runners = new LinkedList<>();
         for (String name : list) {
             String className = String.format("%s.%s", PACKAGE, name);
             for (String parameter : PARAMETERS) {
                 IImobiliaria object = createObject(className, parameter);
-                runners.add(new RunnerFactory.Runner(object));
+                runners.add(new Runner(object));
             }
         }
         return runners;
@@ -54,22 +55,6 @@ public class RunnerFactory {
             System.out.println(e);
         }
         return (IImobiliaria) object;
-    }
-
-    public class Runner implements Runnable {
-
-        private IImobiliaria imobiliaria;
-
-        public Runner(IImobiliaria imobiliaria) {
-            this.imobiliaria = imobiliaria;
-        }
-
-        @Override
-        public void run() {
-            List<IImovel> imoveis = imobiliaria.getImoveis();
-            Excel.getInstance().addTodosImovel(imoveis);
-        }
-
     }
 
 }
