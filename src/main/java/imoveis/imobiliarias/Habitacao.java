@@ -18,10 +18,12 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import imoveis.base.ActionType;
 import imoveis.base.IImovel;
 import imoveis.base.Imobiliaria;
 import imoveis.base.ImobiliariaHtml;
 import imoveis.base.ImovelHtml;
+import imoveis.base.PropertyType;
 import imoveis.excel.Excel;
 import imoveis.utils.HttpClientHelper;
 import imoveis.utils.Utils;
@@ -31,10 +33,10 @@ public class Habitacao extends ImobiliariaHtml {
     private static final String URLBASE = "http://www.habitacaoimob.com.br/";
     private static final String PESQUISA = URLBASE + "action-busca.php";
 
-    public Habitacao(String tipo) {
-        super(tipo);
+    public Habitacao(PropertyType type, ActionType action) {
+        super(type, action);
     }
-    
+
     @Override
     public Document getDocument() {
         return getDocument(getUrl());
@@ -43,7 +45,7 @@ public class Habitacao extends ImobiliariaHtml {
     @Override
     public Document getDocument(String url) {
         try (HttpClientHelper helper = new HttpClientHelper()) {
-            
+
             Map<String, String> payload = getPayload();
             Iterator<String> iterator = payload.keySet().iterator();
             List<NameValuePair> params = new ArrayList<>();
@@ -52,7 +54,7 @@ public class Habitacao extends ImobiliariaHtml {
                 String value = payload.get(key);
                 params.add(new BasicNameValuePair(key, value));
             }
-            
+
             HttpPost httpPost = helper.httpPost(url, params);
             String html = helper.execute(httpPost);
             return Jsoup.parse(html);
@@ -73,9 +75,9 @@ public class Habitacao extends ImobiliariaHtml {
     }
 
     @Override
-    public int getPaginas() {
+    public int getPages() {
         Document document = getDocument();
-        Elements elements = document.select("div#paginacao a");
+        Elements elements = document.select("div#pagecao a");
         if (!elements.isEmpty()) {
             int p = 0;
             for (Element e : elements) {
@@ -93,29 +95,29 @@ public class Habitacao extends ImobiliariaHtml {
     public Map<String, String> getPayload() {
         LinkedHashMap<String, String> payload = new LinkedHashMap<>();
         payload.put("negocio_", "2");
-        payload.put("tipo_", tipo.equals("apartamento") ? "5" : "4");
+        payload.put("type_", type.equals(PropertyType.APARTMENT) ? "5" : "4");
         payload.put("cidade_", "1");
         payload.put("bairro_", "");
         payload.put("quartos_", "");
-        payload.put("pagina", String.valueOf(pagina));
+        payload.put("page", String.valueOf(page));
         return payload;
     }
 
     @Override
     public IImovel newImovel(Element elemento) {
-        return new ImovelImpl(elemento, tipo);
+        return new ImovelImpl(elemento, type);
     }
 
     private class ImovelImpl extends ImovelHtml {
 
-        public ImovelImpl(Element elemento, String tipo) {
-            super(elemento, tipo);
+        public ImovelImpl(Element elemento, PropertyType type) {
+            super(elemento, type);
         }
 
         @Override
         public void carregarNome() {
             Element dados = elemento.select("div.txt-resultado-busca").first();
-            setNome(dados.text().trim());
+            setName(dados.text().trim());
         }
 
         @Override
@@ -125,11 +127,11 @@ public class Habitacao extends ImobiliariaHtml {
 
         @Override
         public void carregarPreco() {
-            setPrecoStr(elemento.select("div.preco-busca").first().text().replace("R$", "").trim());
+            setPriceStr(elemento.select("div.preco-busca").first().text().replace("R$", "").trim());
             try {
-                setPreco(textoParaReal(getPrecoStr()));
+                setPrice(textoParaReal(getPriceStr()));
             } catch (Exception e) {
-                setPreco(0);
+                setPrice(0);
             }
         }
 
@@ -137,9 +139,9 @@ public class Habitacao extends ImobiliariaHtml {
         public void carregarBairro() {
             Elements dados = elemento.select("div.caixas-busca");
             if (dados.size() >= 4) {
-                setBairro(dados.get(2).text().trim());
+                setDistrict(dados.get(2).text().trim());
                 String valor = dados.get(3).text().split(":")[1].trim();
-                setQuartos(Integer.valueOf(valor));
+                setRooms(Integer.valueOf(valor));
             }
         }
 
@@ -161,7 +163,7 @@ public class Habitacao extends ImobiliariaHtml {
 
         @Override
         public void carregarAnunciante() {
-            setAnunciante("Habitação");
+            setAdvertiser("Habitaï¿½ï¿½o");
         }
 
         @Override
@@ -172,11 +174,11 @@ public class Habitacao extends ImobiliariaHtml {
                 String valor = dado.text().toLowerCase().trim();
                 String[] separado = valor.split(":");
                 if (separado.length == 2) {
-                    if (valor.contains("condomínio")) {
+                    if (valor.contains("condomï¿½nio")) {
                         valor = separado[1].trim();
-                        setCondominio(textoParaReal(valor));
+                        setCondominium(textoParaReal(valor));
                     } else if (valor.contains("garagem")) {
-                        setVagas(Integer.valueOf(separado[1].trim()));
+                        setParkingSpaces(Integer.valueOf(separado[1].trim()));
                     }
 
                 }
@@ -190,8 +192,8 @@ public class Habitacao extends ImobiliariaHtml {
     }
 
     public static void main(String[] args) {
-        Imobiliaria imobiliaria = new Habitacao("apartamento");
-        List<IImovel> imos = imobiliaria.getImoveis();
+        Imobiliaria imobiliaria = new Habitacao(PropertyType.APARTMENT, ActionType.RENT);
+        List<IImovel> imos = imobiliaria.getProperties();
         Excel.getInstance().clear();
         for (IImovel imo : imos) {
             Excel.getInstance().addImovel(imo);

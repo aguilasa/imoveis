@@ -12,20 +12,22 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import imoveis.base.ActionType;
 import imoveis.base.IImovel;
 import imoveis.base.Imobiliaria;
 import imoveis.base.ImobiliariaHtml;
 import imoveis.base.ImovelHtml;
+import imoveis.base.PropertyType;
 import imoveis.excel.Excel;
 import imoveis.utils.Utils;
 
 public class Tropical extends ImobiliariaHtml {
 
     private static final String IMOVELBASE = "http://www.tropical.imb.br";
-    private static final String URLBASE = "http://www.tropical.imb.br/imoveis/para-alugar/%s?pagina=%d";
+    private static final String URLBASE = "http://www.tropical.imb.br/imoveis/para-alugar/%s?page=%d";
 
-    public Tropical(String tipo) {
-        super(tipo);
+    public Tropical(PropertyType type, ActionType action) {
+        super(type, action);
     }
 
     @Override
@@ -36,15 +38,15 @@ public class Tropical extends ImobiliariaHtml {
 
     @Override
     public String getUrl() {
-        return String.format(URLBASE, tipo, pagina);
+        return String.format(URLBASE, type, page);
     }
 
     @Override
-    public int getPaginas() {
+    public int getPages() {
         Document document = getDocument();
-        Elements paginas = document.select("div.pagination-cell p");
-        if (!paginas.isEmpty()) {
-            String valor = paginas.first().text();
+        Elements pages = document.select("div.pagetion-cell p");
+        if (!pages.isEmpty()) {
+            String valor = pages.first().text();
             String[] separado = valor.split("de");
             return Integer.valueOf(separado[1].trim());
         }
@@ -58,13 +60,13 @@ public class Tropical extends ImobiliariaHtml {
 
     @Override
     public IImovel newImovel(Element elemento) {
-        return new ImovelImpl(elemento, tipo);
+        return new ImovelImpl(elemento, type);
     }
 
     private class ImovelImpl extends ImovelHtml {
 
-        public ImovelImpl(Element elemento, String tipo) {
-            super(elemento, tipo);
+        public ImovelImpl(Element elemento, PropertyType type) {
+            super(elemento, type);
         }
 
         @Override
@@ -77,22 +79,22 @@ public class Tropical extends ImobiliariaHtml {
         public void carregarNome() {
             String texto1 = elemento.select("h2.card-title").first().text();
             String texto2 = elemento.select("h3.card-text").first().text();
-            setNome(String.format("%s - %s", texto2, texto1));
+            setName(String.format("%s - %s", texto2, texto1));
         }
 
         @Override
         public void carregarBairro() {
-            setBairro(elemento.select("h2.card-title").first().text());
+            setDistrict(elemento.select("h2.card-title").first().text());
         }
 
         @Override
         public void carregarPreco() {
             Elements dados = elemento.select("span.h-money.location");
-            setPrecoStr(dados.last().text().trim());
+            setPriceStr(dados.last().text().trim());
             try {
-                setPreco(textoParaReal(getPrecoStr().replace("R$", "")));
+                setPrice(textoParaReal(getPriceStr().replace("R$", "")));
             } catch (Exception e) {
-                setPreco(0);
+                setPrice(0);
             }
         }
 
@@ -103,12 +105,12 @@ public class Tropical extends ImobiliariaHtml {
                 String texto = dado.text().trim();
                 String valor = dado.select("span.h-money").first().text();
                 if (texto.contains("dorms")) {
-                    setQuartos(Integer.valueOf(valor));
+                    setRooms(Integer.valueOf(valor));
                 } else if (texto.contains("vaga")) {
-                    setVagas(Integer.valueOf(valor));
-                } else if (texto.contains("suíte")) {
+                    setParkingSpaces(Integer.valueOf(valor));
+                } else if (texto.contains("suï¿½te")) {
                     setSuites(Integer.valueOf(valor));
-                } else if (texto.contains("m²")) {
+                } else if (texto.contains("mï¿½")) {
                     setArea(Double.valueOf(valor.replace(".", "").replace(",", ".")));
                 }
             }
@@ -128,7 +130,7 @@ public class Tropical extends ImobiliariaHtml {
 
         @Override
         public void carregarAnunciante() {
-            setAnunciante("Tropical");
+            setAdvertiser("Tropical");
         }
 
         @Override
@@ -136,10 +138,10 @@ public class Tropical extends ImobiliariaHtml {
             Elements dados = elemento.select("div.info-right.text-xs-right p span.h-money");
             for (Element dado : dados) {
                 String valor = dado.text().toUpperCase().trim();
-                if (valor.contains("CONDOMÍNIO")) {
-                    valor = valor.replace("CONDOMÍNIO", "").replace("R$", "").replace(".", "").replace(",", ".").trim();
+                if (valor.contains("CONDOMï¿½NIO")) {
+                    valor = valor.replace("CONDOMï¿½NIO", "").replace("R$", "").replace(".", "").replace(",", ".").trim();
                     if (NumberUtils.isCreatable(valor)) {
-                        setCondominio(Double.valueOf(valor));
+                        setCondominium(Double.valueOf(valor));
                     }
                 }
             }
@@ -152,8 +154,8 @@ public class Tropical extends ImobiliariaHtml {
     }
 
     public static void main(String[] args) {
-        Imobiliaria imobiliaria = new Tropical("apartamento");
-        List<IImovel> imos = imobiliaria.getImoveis();
+        Imobiliaria imobiliaria = new Tropical(PropertyType.APARTMENT, ActionType.RENT);
+        List<IImovel> imos = imobiliaria.getProperties();
         Excel.getInstance().clear();
         for (IImovel imo : imos) {
             Excel.getInstance().addImovel(imo);

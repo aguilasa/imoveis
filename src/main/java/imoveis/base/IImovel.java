@@ -2,80 +2,80 @@ package imoveis.base;
 
 public interface IImovel {
 
-    void setNome(String nome);
+	void setName(String name);
 
-    String getNome();
+	String getName();
 
-    void setUrl(String url);
+	void setUrl(String url);
 
-    String getUrl();
+	String getUrl();
 
-    void setPreco(double preco);
+	void setPrice(double price);
 
-    double getPreco();
+	double getPrice();
 
-    void setPrecoStr(String precoStr);
+	void setPriceStr(String priceStr);
 
-    String getPrecoStr();
+	String getPriceStr();
 
-    void setBairro(String bairro);
+	void setDistrict(String district);
 
-    String getBairro();
+	String getDistrict();
 
-    void setEndereco(String endereco);
+	void setAddress(String address);
 
-    String getEndereco();
+	String getAddress();
 
-    void setAnunciante(String anunciante);
+	void setAdvertiser(String advertiser);
 
-    String getAnunciante();
+	String getAdvertiser();
 
-    void setQuartos(int quartos);
+	void setRooms(int rooms);
 
-    int getQuartos();
+	int getRooms();
 
-    void setVagas(int vagas);
+	void setParkingSpaces(int parkingSpaces);
 
-    int getVagas();
+	int getParkingSpaces();
 
-    void setArea(double area);
+	void setArea(double area);
 
-    double getArea();
+	double getArea();
 
-    void setSuites(int suites);
+	void setSuites(int suites);
 
-    int getSuites();
+	int getSuites();
 
-    void setCondominio(double condominio);
+	void setCondominium(double condominium);
 
-    double getCondominio();
+	double getCondominium();
 
-    void setTipoImovel(TipoImovel tipo);
+	void setPropertyType(PropertyType type);
 
-    TipoImovel getTipoImovel();
+	PropertyType getPropertyType();
 
-    void carregarUrl();
+	void carregarUrl();
 
-    void carregarNome();
+	void carregarNome();
 
-    void carregarBairro();
+	void carregarBairro();
 
-    void carregarPreco();
+	void carregarPreco();
 
-    void carregarQuartos();
+	void carregarQuartos();
 
-    void carregarVagas();
+	void carregarVagas();
 
-    void carregarSuites();
+	void carregarSuites();
 
-    void carregarArea();
+	void carregarArea();
 
-    void carregarAnunciante();
+	void carregarAnunciante();
 
-    void carregarCondominio();
+	void carregarCondominio();
 
-    void carregarEndereco();
+	void carregarEndereco();
 
-    void carregar();
+	void load();
 
 }

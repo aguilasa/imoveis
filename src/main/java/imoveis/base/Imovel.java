@@ -5,45 +5,58 @@ import lombok.Setter;
 
 public abstract class Imovel implements IImovel {
 
-    @Getter @Setter
-    private String nome;
-    @Getter @Setter
-    private String url;
-    @Getter @Setter
-    private double preco;
-    @Getter @Setter
-    private String precoStr;
-    @Getter @Setter
-    private String bairro;
-    @Getter @Setter
-    private String endereco;
-    @Getter @Setter
-    private String anunciante;
-    @Getter @Setter
-    private int quartos;
-    @Getter @Setter
-    private int vagas;
-    @Getter @Setter
-    private double area;
-    @Getter @Setter
-    private int suites;
-    @Getter @Setter
-    private double condominio;
-    @Getter @Setter
-    private TipoImovel tipoImovel;
-    
-    @Override
-    public void carregar() {
-        carregarUrl();
-        carregarNome();
-        carregarBairro();
-        carregarPreco();
-        carregarQuartos();
-        carregarVagas();
-        carregarArea();
-        carregarSuites();
-        carregarAnunciante();
-        carregarCondominio();
-        carregarEndereco();
-    }
+	@Getter
+	@Setter
+	private String name;
+	@Getter
+	@Setter
+	private String url;
+	@Getter
+	@Setter
+	private double price;
+	@Getter
+	@Setter
+	private String priceStr;
+	@Getter
+	@Setter
+	private String district;
+	@Getter
+	@Setter
+	private String address;
+	@Getter
+	@Setter
+	private String advertiser;
+	@Getter
+	@Setter
+	private int rooms;
+	@Getter
+	@Setter
+	private int parkingSpaces;
+	@Getter
+	@Setter
+	private double area;
+	@Getter
+	@Setter
+	private int suites;
+	@Getter
+	@Setter
+	private double condominium;
+	@Getter
+	@Setter
+	private PropertyType propertyType;
+
+	@Override
+	public void load() {
+		carregarUrl();
+		carregarNome();
+		carregarBairro();
+		carregarPreco();
+		carregarQuartos();
+		carregarVagas();
+		carregarArea();
+		carregarSuites();
+		carregarAnunciante();
+		carregarCondominio();
+		carregarEndereco();
+	}
 }

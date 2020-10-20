@@ -4,11 +4,11 @@ import org.json.JSONObject;
 
 public abstract class ImovelJson extends Imovel {
 
-    protected JSONObject elemento;
+	protected JSONObject elemento;
 
-    public ImovelJson(JSONObject elemento, String tipo) {
-        this.elemento = elemento;
-        this.setTipoImovel(TipoImovel.getEnum(tipo));
-    }
+	public ImovelJson(JSONObject elemento, PropertyType type) {
+		this.elemento = elemento;
+		this.setPropertyType(type);
+	}
 
 }

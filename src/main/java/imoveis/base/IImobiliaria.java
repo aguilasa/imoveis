@@ -4,19 +4,23 @@ import java.util.List;
 
 public interface IImobiliaria {
 
-    String getTipo();
+	PropertyType getType();
 
-    void setTipo(String tipo);
-    
-    int getPagina();
-    
-    void setPagina(int pagina);
+	void setType(PropertyType type);
 
-    int getPaginas();
+	ActionType getAction();
 
-    List<IImovel> getImoveis();
-    
-    void carregar();
-    
-    String getUrl();
+	void setAction(ActionType action);
+
+	int getPage();
+
+	void setPage(int page);
+
+	int getPages();
+
+	List<IImovel> getProperties();
+
+	void load();
+
+	String getUrl();
 }

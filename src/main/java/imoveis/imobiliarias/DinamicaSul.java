@@ -15,28 +15,30 @@ import org.jsoup.nodes.Node;
 import org.jsoup.nodes.TextNode;
 import org.jsoup.select.Elements;
 
+import imoveis.base.ActionType;
 import imoveis.base.IImovel;
 import imoveis.base.Imobiliaria;
 import imoveis.base.ImobiliariaHtml;
 import imoveis.base.ImovelHtml;
+import imoveis.base.PropertyType;
 import imoveis.excel.Excel;
 import imoveis.utils.Utils;
 
 public class DinamicaSul extends ImobiliariaHtml {
 
-    private static final String URLBASE = "http://www.dinamicasul.com.br/imoveis/blumenau/quero-alugar/%s/pagina%d";
+    private static final String URLBASE = "http://www.dinamicasul.com.br/imoveis/blumenau/quero-alugar/%s/page%d";
 
-    public DinamicaSul(String tipo) {
-        super(tipo);
+    public DinamicaSul(PropertyType type, ActionType action) {
+        super(type, action);
     }
 
     @Override
-    public int getPaginas() {
+    public int getPages() {
         Document document = getDocument();
         int p = 1;
-        Elements paginas = document.select("ul.pagination.pagination-sm li");
-        for (Element pagina : paginas) {
-            String valor = pagina.text().trim();
+        Elements pages = document.select("ul.pagetion.pagetion-sm li");
+        for (Element page : pages) {
+            String valor = page.text().trim();
             if (NumberUtils.isCreatable(valor)) {
                 p = Integer.valueOf(valor);
             }
@@ -46,7 +48,7 @@ public class DinamicaSul extends ImobiliariaHtml {
 
     @Override
     public String getUrl() {
-        return String.format(URLBASE, tipo, pagina);
+        return String.format(URLBASE, type, page);
     }
 
     @Override
@@ -62,20 +64,20 @@ public class DinamicaSul extends ImobiliariaHtml {
 
     @Override
     public IImovel newImovel(Element elemento) {
-        return new ImovelImpl(elemento, tipo);
+        return new ImovelImpl(elemento, type);
     }
 
     private class ImovelImpl extends ImovelHtml {
 
-        public ImovelImpl(Element elemento, String tipo) {
-            super(elemento, tipo);
+        public ImovelImpl(Element elemento, PropertyType type) {
+            super(elemento, type);
         }
 
         @Override
         public void carregarUrl() {
             Element link = elemento.select("a").first();
             setUrl(link.attr("href"));
-            setNome(link.attr("title"));
+            setName(link.attr("title"));
         }
 
         @Override
@@ -84,16 +86,16 @@ public class DinamicaSul extends ImobiliariaHtml {
 
         @Override
         public void carregarBairro() {
-            setBairro(elemento.select("p.bairro").first().text().replace("Bairro", "").trim());
+            setDistrict(elemento.select("p.bairro").first().text().replace("Bairro", "").trim());
         }
 
         @Override
         public void carregarPreco() {
-            setPrecoStr(elemento.select("p.valor").last().text().trim());
+            setPriceStr(elemento.select("p.valor").last().text().trim());
             try {
-                setPreco(extrairValor(getPrecoStr()));
+                setPrice(extrairValor(getPriceStr()));
             } catch (Exception e) {
-                setPreco(0);
+                setPrice(0);
             }
         }
 
@@ -102,7 +104,7 @@ public class DinamicaSul extends ImobiliariaHtml {
             Elements dados = getDocumento().select("div.extras.dormitorios span.un");
             if (!dados.isEmpty()) {
                 String texto = dados.first().text().trim();
-                setQuartos(Integer.valueOf(texto));
+                setRooms(Integer.valueOf(texto));
             }
         }
 
@@ -111,7 +113,7 @@ public class DinamicaSul extends ImobiliariaHtml {
             Elements dados = getDocumento().select("div.extras.garagens span.un");
             if (!dados.isEmpty()) {
                 String texto = dados.first().text().trim();
-                setVagas(Integer.valueOf(texto));
+                setParkingSpaces(Integer.valueOf(texto));
             }
         }
 
@@ -128,14 +130,14 @@ public class DinamicaSul extends ImobiliariaHtml {
         public void carregarArea() {
             Elements dados = getDocumento().select("div.extras.areaprivativa span.un");
             if (!dados.isEmpty()) {
-                String texto = dados.first().text().replace("m²", "").trim();
+                String texto = dados.first().text().replace("mï¿½", "").trim();
                 setArea(textoParaReal(texto));
             }
         }
 
         @Override
         public void carregarAnunciante() {
-            setAnunciante("Dinâmica Sul");
+            setAdvertiser("Dinï¿½mica Sul");
         }
 
         @Override
@@ -148,8 +150,8 @@ public class DinamicaSul extends ImobiliariaHtml {
                         TextNode textNode = (TextNode) node;
                         String texto = textNode.text();
                         if (texto.toUpperCase().contains("CONDOM")) {
-                            setCondominio(extrairValor(texto));
-                            if (getCondominio() > 0) {
+                            setCondominium(extrairValor(texto));
+                            if (getCondominium() > 0) {
                                 break;
                             }
                         }
@@ -165,8 +167,8 @@ public class DinamicaSul extends ImobiliariaHtml {
     }
 
     public static void main(String[] args) {
-        Imobiliaria imobiliaria = new DinamicaSul("casa");
-        List<IImovel> imos = imobiliaria.getImoveis();
+        Imobiliaria imobiliaria = new DinamicaSul(PropertyType.HOUSE, ActionType.RENT);
+        List<IImovel> imos = imobiliaria.getProperties();
         Excel.getInstance().clear();
         for (IImovel imo : imos) {
             Excel.getInstance().addImovel(imo);

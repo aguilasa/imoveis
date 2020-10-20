@@ -16,7 +16,7 @@ public class Runner implements Runnable {
 
     @Override
     public void run() {
-        List<IImovel> imoveis = imobiliaria.getImoveis();
+        List<IImovel> imoveis = imobiliaria.getProperties();
         Excel.getInstance().addTodosImovel(imoveis);
     }
 

@@ -1,6 +1,6 @@
 package imoveis.imobiliarias;
 
-import static imoveis.utils.Utils.*;
+import static imoveis.utils.Utils.extrairValor;
 import static imoveis.utils.Utils.textoParaReal;
 
 import java.util.LinkedHashMap;
@@ -12,10 +12,12 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import imoveis.base.ActionType;
 import imoveis.base.IImovel;
 import imoveis.base.Imobiliaria;
 import imoveis.base.ImobiliariaHtml;
 import imoveis.base.ImovelHtml;
+import imoveis.base.PropertyType;
 import imoveis.excel.Excel;
 import imoveis.utils.Utils;
 
@@ -23,8 +25,8 @@ public class Portal extends ImobiliariaHtml {
 
     private static final String URLBASE = "http://vale.imoveisportal.com";
 
-    public Portal(String tipo) {
-        super(tipo);
+    public Portal(PropertyType type, ActionType action) {
+        super(type, action);
     }
 
     @Override
@@ -39,11 +41,11 @@ public class Portal extends ImobiliariaHtml {
     }
 
     @Override
-    public int getPaginas() {
+    public int getPages() {
         Document document = getDocument();
-        String paginacao = document.select("h4.text-muted").first().text();
-        paginacao = paginacao.replaceAll("\\D+", "").trim();
-        double valor = Double.valueOf(paginacao);
+        String pagecao = document.select("h4.text-muted").first().text();
+        pagecao = pagecao.replaceAll("\\D+", "").trim();
+        double valor = Double.valueOf(pagecao);
         return (int) Math.ceil(valor / 24.0);
     }
 
@@ -52,28 +54,28 @@ public class Portal extends ImobiliariaHtml {
         LinkedHashMap<String, String> payload = new LinkedHashMap<>();
         payload.put("opcao", "alugar");
         payload.put("cidades", "blumenau");
-        payload.put("tipos", tipo.equals("apartamento") ? "apartamento" : "casa");
-        if (pagina > 1) {
-            int valor = (pagina - 1) * 24;
-            payload.put("pagina", String.valueOf(valor));
+        payload.put("types", type.equals(PropertyType.APARTMENT) ? "apartamento" : "casa");
+        if (page > 1) {
+            int valor = (page - 1) * 24;
+            payload.put("page", String.valueOf(valor));
         }
         return payload;
     }
 
     @Override
     public IImovel newImovel(Element elemento) {
-        return new ImovelImpl(elemento, tipo);
+        return new ImovelImpl(elemento, type);
     }
 
     private class ImovelImpl extends ImovelHtml {
 
-        public ImovelImpl(Element elemento, String tipo) {
-            super(elemento, tipo);
+        public ImovelImpl(Element elemento, PropertyType type) {
+            super(elemento, type);
         }
 
         @Override
         public void carregarNome() {
-            setNome(elemento.select("div.truncate").first().text().replace(", Blumenau", "").trim());
+            setName(elemento.select("div.truncate").first().text().replace(", Blumenau", "").trim());
         }
 
         @Override
@@ -86,18 +88,18 @@ public class Portal extends ImobiliariaHtml {
         public void carregarPreco() {
             Element valor = elemento.select("div.panel-footer strong").first();
             if (valor != null) {
-                setPrecoStr(valor.text().replace("/ mês", "").replace("R$", "").trim());
+                setPriceStr(valor.text().replace("/ mï¿½s", "").replace("R$", "").trim());
                 try {
-                    setPreco(textoParaReal(getPrecoStr()));
+                    setPrice(textoParaReal(getPriceStr()));
                 } catch (Exception e) {
-                    setPreco(0);
+                    setPrice(0);
                 }
             }
         }
 
         @Override
         public void carregarBairro() {
-            setBairro(elemento.select("div.truncate").first().text().replace(", Blumenau", "").trim());
+            setDistrict(elemento.select("div.truncate").first().text().replace(", Blumenau", "").trim());
         }
 
         @Override
@@ -105,12 +107,12 @@ public class Portal extends ImobiliariaHtml {
             Elements dados = elemento.select("div.tags div.label");
             for (Element dado : dados) {
                 String valor = dado.text().trim();
-                if (valor.contains("dormitório")) {
-                    setQuartos(Integer.valueOf(valor.split(" ")[0].trim()));
+                if (valor.contains("dormitï¿½rio")) {
+                    setRooms(Integer.valueOf(valor.split(" ")[0].trim()));
                 } else if (valor.contains("garage")) {
-                    setVagas(Integer.valueOf(valor.split(" ")[0].trim()));
-                } else if (valor.contains("m²")) {
-                    setArea(textoParaReal(valor.split("m²")[0].trim()));
+                    setParkingSpaces(Integer.valueOf(valor.split(" ")[0].trim()));
+                } else if (valor.contains("mï¿½")) {
+                    setArea(textoParaReal(valor.split("mï¿½")[0].trim()));
                 } else if (valor.contains("suite")) {
                     setSuites(Integer.valueOf(valor.split(" ")[0].trim()));
                 }
@@ -131,7 +133,7 @@ public class Portal extends ImobiliariaHtml {
 
         @Override
         public void carregarAnunciante() {
-            setAnunciante("Portal");
+            setAdvertiser("Portal");
         }
 
         @Override
@@ -141,7 +143,7 @@ public class Portal extends ImobiliariaHtml {
             for (Element dado : dados) {
                 String valor = dado.text().toUpperCase().trim();
                 if (valor.contains("CONDOM")) {
-                    setCondominio(extrairValor(valor));
+                    setCondominium(extrairValor(valor));
                 }
             }
         }
@@ -153,8 +155,8 @@ public class Portal extends ImobiliariaHtml {
     }
 
     public static void main(String[] args) {
-        Imobiliaria imobiliaria = new Portal("apartamento");
-        List<IImovel> imos = imobiliaria.getImoveis();
+        Imobiliaria imobiliaria = new Portal(PropertyType.APARTMENT, ActionType.RENT);
+        List<IImovel> imos = imobiliaria.getProperties();
         Excel.getInstance().clear();
         for (IImovel imo : imos) {
             Excel.getInstance().addImovel(imo);

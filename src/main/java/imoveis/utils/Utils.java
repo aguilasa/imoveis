@@ -21,18 +21,18 @@ public class Utils {
 
     public static JSONObject imovelToJson(IImovel imovel) {
         JSONObject json = new JSONObject();
-        json.put("nome", imovel.getNome());
+        json.put("nome", imovel.getName());
         json.put("url", imovel.getUrl());
-        json.put("preco", imovel.getPreco());
-        json.put("precoStr", imovel.getPrecoStr());
-        json.put("bairro", imovel.getBairro());
-        json.put("endereco", imovel.getEndereco());
-        json.put("anunciante", imovel.getAnunciante());
-        json.put("quartos", imovel.getQuartos());
-        json.put("vagas", imovel.getVagas());
+        json.put("preco", imovel.getPrice());
+        json.put("precoStr", imovel.getPriceStr());
+        json.put("bairro", imovel.getDistrict());
+        json.put("endereco", imovel.getAddress());
+        json.put("anunciante", imovel.getAdvertiser());
+        json.put("quartos", imovel.getRooms());
+        json.put("vagas", imovel.getParkingSpaces());
         json.put("area", imovel.getArea());
         json.put("suites", imovel.getSuites());
-        json.put("condominio", imovel.getCondominio());
+        json.put("condominio", imovel.getCondominium());
         return json;
     }
 

@@ -15,10 +15,12 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import imoveis.base.ActionType;
 import imoveis.base.IImovel;
 import imoveis.base.Imobiliaria;
 import imoveis.base.ImobiliariaHtml;
 import imoveis.base.ImovelHtml;
+import imoveis.base.PropertyType;
 import imoveis.excel.Excel;
 import imoveis.utils.HttpClientHelper;
 import imoveis.utils.Utils;
@@ -28,8 +30,8 @@ public class LFernando extends ImobiliariaHtml {
     private static final String BASE = "www.lfernando.com.br";
     private static final String URLBASE = "http://" + BASE + "/";
 
-    public LFernando(String tipo) {
-        super(tipo);
+    public LFernando(PropertyType type, ActionType action) {
+        super(type, action);
     }
 
     @Override
@@ -77,9 +79,9 @@ public class LFernando extends ImobiliariaHtml {
     }
 
     @Override
-    public int getPaginas() {
+    public int getPages() {
         Document document = getDocument();
-        Element elemento = document.select("a.paginacao_pagina").last();
+        Element elemento = document.select("a.pagecao_page").last();
         if (elemento != null) {
             String valor = elemento.text().trim();
             return Integer.valueOf(valor);
@@ -90,23 +92,23 @@ public class LFernando extends ImobiliariaHtml {
     @Override
     public Map<String, String> getPayload() {
         LinkedHashMap<String, String> payload = new LinkedHashMap<>();
-        payload.put("opcao", "Locação");
+        payload.put("opcao", "Locaï¿½ï¿½o");
         payload.put("cidade", "Blumenau/SC");
-        payload.put("tipo", tipo.equals("apartamento") ? "Apartamento" : "Casa Residencial");
-        int init = (pagina - 1) * 15;
+        payload.put("type", type.equals(PropertyType.APARTMENT) ? "Apartamento" : "Casa Residencial");
+        int init = (page - 1) * 15;
         payload.put("init", String.valueOf(init));
         return payload;
     }
 
     @Override
     public IImovel newImovel(Element elemento) {
-        return new ImovelImpl(elemento, tipo);
+        return new ImovelImpl(elemento, type);
     }
 
     private class ImovelImpl extends ImovelHtml {
 
-        public ImovelImpl(Element elemento, String tipo) {
-            super(elemento, tipo);
+        public ImovelImpl(Element elemento, PropertyType type) {
+            super(elemento, type);
         }
 
         @Override
@@ -121,18 +123,18 @@ public class LFernando extends ImobiliariaHtml {
 
         @Override
         public void carregarPreco() {
-            setPrecoStr(elemento.select("div.imovel_preco span").first().text().replace("R$", "").trim());
+            setPriceStr(elemento.select("div.imovel_preco span").first().text().replace("R$", "").trim());
             try {
-                setPreco(textoParaReal(getPrecoStr()));
+                setPrice(textoParaReal(getPriceStr()));
             } catch (Exception e) {
-                setPreco(0);
+                setPrice(0);
             }
         }
 
         @Override
         public void carregarBairro() {
-            setBairro(elemento.select("span.imovel_info_destaques_texto").first().text().replace("| Blumenau/SC", "").trim());
-            setNome(getBairro());
+            setDistrict(elemento.select("span.imovel_info_destaques_texto").first().text().replace("| Blumenau/SC", "").trim());
+            setName(getDistrict());
         }
 
         @Override
@@ -141,11 +143,11 @@ public class LFernando extends ImobiliariaHtml {
             for (Element dado : dados) {
                 String valor = dado.text().toLowerCase().trim();
                 if (valor.contains("quarto")) {
-                    setQuartos(Integer.valueOf(valor.split(" ")[0].trim()));
+                    setRooms(Integer.valueOf(valor.split(" ")[0].trim()));
                 } else if (valor.contains("vaga")) {
-                    setVagas(Integer.valueOf(valor.split(" ")[0].trim()));
-                } else if (valor.contains("m²")) {
-                    setArea(Double.valueOf(valor.split("m²")[0].trim().replace(",", ".")));
+                    setParkingSpaces(Integer.valueOf(valor.split(" ")[0].trim()));
+                } else if (valor.contains("mï¿½")) {
+                    setArea(Double.valueOf(valor.split("mï¿½")[0].trim().replace(",", ".")));
                 } else if (valor.contains("suite")) {
                     setSuites(Integer.valueOf(valor.split(" ")[0].trim()));
                 }
@@ -166,7 +168,7 @@ public class LFernando extends ImobiliariaHtml {
 
         @Override
         public void carregarAnunciante() {
-            setAnunciante("LFernando");
+            setAdvertiser("LFernando");
         }
 
         @Override
@@ -180,8 +182,8 @@ public class LFernando extends ImobiliariaHtml {
     }
 
     public static void main(String[] args) {
-        Imobiliaria imobiliaria = new LFernando("apartamento");
-        List<IImovel> imos = imobiliaria.getImoveis();
+        Imobiliaria imobiliaria = new LFernando(PropertyType.APARTMENT, ActionType.RENT);
+        List<IImovel> imos = imobiliaria.getProperties();
         Excel.getInstance().clear();
         for (IImovel imo : imos) {
             Excel.getInstance().addImovel(imo);
