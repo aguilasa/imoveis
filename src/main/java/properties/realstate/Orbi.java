@@ -1,4 +1,4 @@
-package properties.imobiliarias;
+package properties.realstate;
 
 import static properties.utils.Utils.buscarCondominio;
 import static properties.utils.Utils.getHttpClient;

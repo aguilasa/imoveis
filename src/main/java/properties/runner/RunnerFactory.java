@@ -13,7 +13,7 @@ import properties.base.PropertyType;
 
 public class RunnerFactory {
 
-	public static final String PACKAGE = "imoveis.imobiliarias";
+	public static final String PACKAGE = "properties.realstate";
 	public static final List<String> CLASSES = Arrays.asList("Abelardo", "ACRC", "Alianca", "Conexao", "Habitacao",
 			"ImoveisSc", "LFernando", "Orbi", "Portal", "Tropical", "DinamicaSul");
 	public static final PropertyType[] PARAMETERS = { PropertyType.APARTMENT, PropertyType.HOUSE };
