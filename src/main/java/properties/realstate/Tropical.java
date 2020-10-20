@@ -13,15 +13,15 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import properties.base.ActionType;
-import properties.base.IImovel;
-import properties.base.Imobiliaria;
-import properties.base.ImobiliariaHtml;
-import properties.base.ImovelHtml;
+import properties.base.IProperty;
+import properties.base.RealState;
+import properties.base.RealStateHtml;
+import properties.base.PropertyHtml;
 import properties.base.PropertyType;
 import properties.excel.Excel;
 import properties.utils.Utils;
 
-public class Tropical extends ImobiliariaHtml {
+public class Tropical extends RealStateHtml {
 
     private static final String IMOVELBASE = "http://www.tropical.imb.br";
     private static final String URLBASE = "http://www.tropical.imb.br/imoveis/para-alugar/%s?page=%d";
@@ -31,7 +31,7 @@ public class Tropical extends ImobiliariaHtml {
     }
 
     @Override
-    public Elements getElementos() {
+    public Elements getElements() {
         Document document = getDocument(getUrl());
         return document.select("div.card.card-listing");
     }
@@ -59,36 +59,36 @@ public class Tropical extends ImobiliariaHtml {
     }
 
     @Override
-    public IImovel newImovel(Element elemento) {
+    public IProperty newProperty(Element elemento) {
         return new ImovelImpl(elemento, type);
     }
 
-    private class ImovelImpl extends ImovelHtml {
+    private class ImovelImpl extends PropertyHtml {
 
         public ImovelImpl(Element elemento, PropertyType type) {
             super(elemento, type);
         }
 
         @Override
-        public void carregarUrl() {
+        public void loadUrl() {
             Element link = elemento.select("a").first();
             setUrl(IMOVELBASE.concat(link.attr("href")));
         }
 
         @Override
-        public void carregarNome() {
+        public void loadName() {
             String texto1 = elemento.select("h2.card-title").first().text();
             String texto2 = elemento.select("h3.card-text").first().text();
             setName(String.format("%s - %s", texto2, texto1));
         }
 
         @Override
-        public void carregarBairro() {
+        public void loadDistrict() {
             setDistrict(elemento.select("h2.card-title").first().text());
         }
 
         @Override
-        public void carregarPreco() {
+        public void loadPrice() {
             Elements dados = elemento.select("span.h-money.location");
             setPriceStr(dados.last().text().trim());
             try {
@@ -99,7 +99,7 @@ public class Tropical extends ImobiliariaHtml {
         }
 
         @Override
-        public void carregarQuartos() {
+        public void loadRooms() {
             Elements dados = elemento.select("div.values div.value");
             for (Element dado : dados) {
                 String texto = dado.text().trim();
@@ -117,24 +117,24 @@ public class Tropical extends ImobiliariaHtml {
         }
 
         @Override
-        public void carregarVagas() {
+        public void loadParkingSpaces() {
         }
 
         @Override
-        public void carregarSuites() {
+        public void loadSuites() {
         }
 
         @Override
-        public void carregarArea() {
+        public void loadArea() {
         }
 
         @Override
-        public void carregarAnunciante() {
+        public void loadAdvertiser() {
             setAdvertiser("Tropical");
         }
 
         @Override
-        public void carregarCondominio() {
+        public void loadCondominium() {
             Elements dados = elemento.select("div.info-right.text-xs-right p span.h-money");
             for (Element dado : dados) {
                 String valor = dado.text().toUpperCase().trim();
@@ -148,16 +148,16 @@ public class Tropical extends ImobiliariaHtml {
         }
 
         @Override
-        public void carregarEndereco() {
+        public void loadAddress() {
         }
 
     }
 
     public static void main(String[] args) {
-        Imobiliaria imobiliaria = new Tropical(PropertyType.APARTMENT, ActionType.RENT);
-        List<IImovel> imos = imobiliaria.getProperties();
+        RealState imobiliaria = new Tropical(PropertyType.APARTMENT, ActionType.RENT);
+        List<IProperty> imos = imobiliaria.getProperties();
         Excel.getInstance().clear();
-        for (IImovel imo : imos) {
+        for (IProperty imo : imos) {
             Excel.getInstance().addImovel(imo);
             JSONObject json = Utils.imovelToJson(imo);
             System.out.println(json.toString());

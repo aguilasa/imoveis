@@ -2,11 +2,11 @@ package properties.base;
 
 import org.json.JSONObject;
 
-public abstract class ImovelJson extends Imovel {
+public abstract class PropertyJson extends Property {
 
 	protected JSONObject elemento;
 
-	public ImovelJson(JSONObject elemento, PropertyType type) {
+	public PropertyJson(JSONObject elemento, PropertyType type) {
 		this.elemento = elemento;
 		this.setPropertyType(type);
 	}

@@ -13,15 +13,15 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import properties.base.ActionType;
-import properties.base.IImovel;
-import properties.base.Imobiliaria;
-import properties.base.ImobiliariaHtml;
-import properties.base.ImovelHtml;
+import properties.base.IProperty;
+import properties.base.RealState;
+import properties.base.RealStateHtml;
+import properties.base.PropertyHtml;
 import properties.base.PropertyType;
 import properties.excel.Excel;
 import properties.utils.Utils;
 
-public class Abelardo extends ImobiliariaHtml {
+public class Abelardo extends RealStateHtml {
 
 	private static final String IMOVELBASE = "http://www.abelardoimoveis.com.br";
 	private static final String URLBASE = "http://www.abelardoimoveis.com.br/imoveis-type-%s-para-locacao-em-blumenau-pg-%s";
@@ -31,7 +31,7 @@ public class Abelardo extends ImobiliariaHtml {
 	}
 
 	@Override
-	public Elements getElementos() {
+	public Elements getElements() {
 		Document document = getDocument(getUrl());
 		return document.select("div.imovel");
 	}
@@ -58,30 +58,30 @@ public class Abelardo extends ImobiliariaHtml {
 	}
 
 	@Override
-	public IImovel newImovel(Element elemento) {
+	public IProperty newProperty(Element elemento) {
 		return new ImovelImpl(elemento, type);
 	}
 
-	private class ImovelImpl extends ImovelHtml {
+	private class ImovelImpl extends PropertyHtml {
 
 		public ImovelImpl(Element elemento, PropertyType type) {
 			super(elemento, type);
 		}
 
 		@Override
-		public void carregarNome() {
+		public void loadName() {
 			Element link = elemento.select("a.visualizar-imovel").first();
 			setName(link.attr("title"));
 		}
 
 		@Override
-		public void carregarUrl() {
+		public void loadUrl() {
 			Element link = elemento.select("a.visualizar-imovel").first();
 			setUrl(IMOVELBASE.concat(link.attr("href")));
 		}
 
 		@Override
-		public void carregarPreco() {
+		public void loadPrice() {
 			setPriceStr(elemento.select("strong.preco-imovel").first().text().trim());
 			try {
 				setPrice(textoParaReal(getPriceStr()));
@@ -91,7 +91,7 @@ public class Abelardo extends ImobiliariaHtml {
 		}
 
 		@Override
-		public void carregarBairro() {
+		public void loadDistrict() {
 			Elements valores = elemento.select("div.endereco-imovel");
 			if (!valores.isEmpty()) {
 				Element valor = valores.first();
@@ -106,7 +106,7 @@ public class Abelardo extends ImobiliariaHtml {
 		}
 
 		@Override
-		public void carregarQuartos() {
+		public void loadRooms() {
 			Document documento = getDocumento();
 			Elements dados = documento.select("div.dormitorios div.quantidade");
 			if (!dados.isEmpty()) {
@@ -115,7 +115,7 @@ public class Abelardo extends ImobiliariaHtml {
 		}
 
 		@Override
-		public void carregarVagas() {
+		public void loadParkingSpaces() {
 			Document documento = getDocumento();
 			Elements dados = documento.select("div.garagens div.quantidade");
 			if (!dados.isEmpty()) {
@@ -124,7 +124,7 @@ public class Abelardo extends ImobiliariaHtml {
 		}
 
 		@Override
-		public void carregarSuites() {
+		public void loadSuites() {
 			Document documento = getDocumento();
 			Elements dados = documento.select("div.suites div.quantidade");
 			if (!dados.isEmpty()) {
@@ -133,7 +133,7 @@ public class Abelardo extends ImobiliariaHtml {
 		}
 
 		@Override
-		public void carregarArea() {
+		public void loadArea() {
 			Document documento = getDocumento();
 			Elements dados = documento.select("div.areaprivada div.quantidade");
 			if (!dados.isEmpty()) {
@@ -142,12 +142,12 @@ public class Abelardo extends ImobiliariaHtml {
 		}
 
 		@Override
-		public void carregarAnunciante() {
+		public void loadAdvertiser() {
 			setAdvertiser("Abelardo");
 		}
 
 		@Override
-		public void carregarCondominio() {
+		public void loadCondominium() {
 			Document documento = getDocumento();
 			Elements resumo = documento.select("div.resumo-imovel");
 			if (!resumo.isEmpty()) {
@@ -157,16 +157,16 @@ public class Abelardo extends ImobiliariaHtml {
 		}
 
 		@Override
-		public void carregarEndereco() {
+		public void loadAddress() {
 		}
 
 	}
 
 	public static void main(String[] args) {
-		Imobiliaria imobiliaria = new Abelardo(PropertyType.HOUSE, ActionType.RENT);
-		List<IImovel> imos = imobiliaria.getProperties();
+		RealState imobiliaria = new Abelardo(PropertyType.HOUSE, ActionType.RENT);
+		List<IProperty> imos = imobiliaria.getProperties();
 		Excel.getInstance().clear();
-		for (IImovel imo : imos) {
+		for (IProperty imo : imos) {
 			Excel.getInstance().addImovel(imo);
 			JSONObject json = Utils.imovelToJson(imo);
 			System.out.println(json.toString());

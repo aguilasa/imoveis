@@ -13,15 +13,15 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import properties.base.ActionType;
-import properties.base.IImovel;
-import properties.base.Imobiliaria;
-import properties.base.ImobiliariaHtml;
-import properties.base.ImovelHtml;
+import properties.base.IProperty;
+import properties.base.RealState;
+import properties.base.RealStateHtml;
+import properties.base.PropertyHtml;
 import properties.base.PropertyType;
 import properties.excel.Excel;
 import properties.utils.Utils;
 
-public class Portal extends ImobiliariaHtml {
+public class Portal extends RealStateHtml {
 
     private static final String URLBASE = "http://vale.imoveisportal.com";
 
@@ -30,7 +30,7 @@ public class Portal extends ImobiliariaHtml {
     }
 
     @Override
-    public Elements getElementos() {
+    public Elements getElements() {
         Document document = getDocument(getUrl());
         return document.select("div.row.row-list div.col-xs-12.col-sm-6.col-md-4");
     }
@@ -63,29 +63,29 @@ public class Portal extends ImobiliariaHtml {
     }
 
     @Override
-    public IImovel newImovel(Element elemento) {
+    public IProperty newProperty(Element elemento) {
         return new ImovelImpl(elemento, type);
     }
 
-    private class ImovelImpl extends ImovelHtml {
+    private class ImovelImpl extends PropertyHtml {
 
         public ImovelImpl(Element elemento, PropertyType type) {
             super(elemento, type);
         }
 
         @Override
-        public void carregarNome() {
+        public void loadName() {
             setName(elemento.select("div.truncate").first().text().replace(", Blumenau", "").trim());
         }
 
         @Override
-        public void carregarUrl() {
+        public void loadUrl() {
             Element link = elemento.select("a").first();
             setUrl(URLBASE.concat(link.attr("href")));
         }
 
         @Override
-        public void carregarPreco() {
+        public void loadPrice() {
             Element valor = elemento.select("div.panel-footer strong").first();
             if (valor != null) {
                 setPriceStr(valor.text().replace("/ m�s", "").replace("R$", "").trim());
@@ -98,12 +98,12 @@ public class Portal extends ImobiliariaHtml {
         }
 
         @Override
-        public void carregarBairro() {
+        public void loadDistrict() {
             setDistrict(elemento.select("div.truncate").first().text().replace(", Blumenau", "").trim());
         }
 
         @Override
-        public void carregarQuartos() {
+        public void loadRooms() {
             Elements dados = elemento.select("div.tags div.label");
             for (Element dado : dados) {
                 String valor = dado.text().trim();
@@ -120,24 +120,24 @@ public class Portal extends ImobiliariaHtml {
         }
 
         @Override
-        public void carregarVagas() {
+        public void loadParkingSpaces() {
         }
 
         @Override
-        public void carregarSuites() {
+        public void loadSuites() {
         }
 
         @Override
-        public void carregarArea() {
+        public void loadArea() {
         }
 
         @Override
-        public void carregarAnunciante() {
+        public void loadAdvertiser() {
             setAdvertiser("Portal");
         }
 
         @Override
-        public void carregarCondominio() {
+        public void loadCondominium() {
             Document documento = getDocumento();
             Elements dados = documento.select("ul.list-group li");
             for (Element dado : dados) {
@@ -149,16 +149,16 @@ public class Portal extends ImobiliariaHtml {
         }
 
         @Override
-        public void carregarEndereco() {
+        public void loadAddress() {
         }
 
     }
 
     public static void main(String[] args) {
-        Imobiliaria imobiliaria = new Portal(PropertyType.APARTMENT, ActionType.RENT);
-        List<IImovel> imos = imobiliaria.getProperties();
+        RealState imobiliaria = new Portal(PropertyType.APARTMENT, ActionType.RENT);
+        List<IProperty> imos = imobiliaria.getProperties();
         Excel.getInstance().clear();
-        for (IImovel imo : imos) {
+        for (IProperty imo : imos) {
             Excel.getInstance().addImovel(imo);
             JSONObject json = Utils.imovelToJson(imo);
             System.out.println(json.toString());

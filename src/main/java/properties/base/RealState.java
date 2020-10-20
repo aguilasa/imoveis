@@ -6,7 +6,7 @@ import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 
-public abstract class Imobiliaria implements IImobiliaria {
+public abstract class RealState implements IRealState {
 
 	@Getter
 	@Setter
@@ -18,19 +18,19 @@ public abstract class Imobiliaria implements IImobiliaria {
 	@Setter
 	protected int page;
 	private boolean carregou = false;
-	protected List<IImovel> imoveis = new LinkedList<>();
+	protected List<IProperty> properties = new LinkedList<>();
 
-	public Imobiliaria(PropertyType type, ActionType action) {
+	public RealState(PropertyType type, ActionType action) {
 		this.type = type;
 		this.action = action;
 		page = 1;
 	}
 
-	public List<IImovel> getProperties() {
+	public List<IProperty> getProperties() {
 		if (!carregou) {
 			load();
 		}
-		return imoveis;
+		return properties;
 	}
 
 }

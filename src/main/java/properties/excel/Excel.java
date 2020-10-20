@@ -21,14 +21,14 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-import properties.base.IImovel;
+import properties.base.IProperty;
 import properties.utils.ResourceManager;
 
 public class Excel {
 
 	private static Excel instance;
 
-	private List<IImovel> imoveis = new LinkedList<>();
+	private List<IProperty> imoveis = new LinkedList<>();
 
 	private Excel() {
 
@@ -45,11 +45,11 @@ public class Excel {
 		imoveis.clear();
 	}
 
-	public synchronized void addImovel(IImovel imovel) {
+	public synchronized void addImovel(IProperty imovel) {
 		imoveis.add(imovel);
 	}
 
-	public synchronized void addTodosImovel(List<IImovel> imovel) {
+	public synchronized void addTodosImovel(List<IProperty> imovel) {
 		imoveis.addAll(imovel);
 	}
 
@@ -83,7 +83,7 @@ public class Excel {
 		CellStyle style = workbook.createCellStyle();
 		style.setDataFormat((short) 0x7);
 		int linha = 1;
-		for (IImovel imovel : imoveis) {
+		for (IProperty imovel : imoveis) {
 			Row row = sheet.getRow(linha);
 			if (row == null) {
 				row = sheet.createRow(linha);

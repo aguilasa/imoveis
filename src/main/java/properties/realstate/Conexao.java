@@ -12,15 +12,15 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import properties.base.ActionType;
-import properties.base.IImovel;
-import properties.base.Imobiliaria;
-import properties.base.ImobiliariaHtml;
-import properties.base.ImovelHtml;
+import properties.base.IProperty;
+import properties.base.RealState;
+import properties.base.RealStateHtml;
+import properties.base.PropertyHtml;
 import properties.base.PropertyType;
 import properties.excel.Excel;
 import properties.utils.Utils;
 
-public class Conexao extends ImobiliariaHtml {
+public class Conexao extends RealStateHtml {
 
 	private static final String URLBASE = "http://www.imobiliariaconexao.com.br/imoveis/";
 
@@ -29,7 +29,7 @@ public class Conexao extends ImobiliariaHtml {
 	}
 
 	@Override
-	public Elements getElementos() {
+	public Elements getElements() {
 		Document document = getDocument(getUrl());
 		return document.select("div.imovel-item");
 	}
@@ -62,30 +62,30 @@ public class Conexao extends ImobiliariaHtml {
 	}
 
 	@Override
-	public IImovel newImovel(Element elemento) {
+	public IProperty newProperty(Element elemento) {
 		return new ImovelImpl(elemento, type);
 	}
 
-	private class ImovelImpl extends ImovelHtml {
+	private class ImovelImpl extends PropertyHtml {
 
 		public ImovelImpl(Element elemento, PropertyType type) {
 			super(elemento, type);
 		}
 
 		@Override
-		public void carregarNome() {
+		public void loadName() {
 			setName(elemento.select("a.imovel-item-link").first().text().replace("BLUMENAU / SC", "")
 					.replace("BAIRRO", "").trim());
 		}
 
 		@Override
-		public void carregarUrl() {
+		public void loadUrl() {
 			Element link = elemento.select("a.imovel-item-link").first();
 			setUrl(link.attr("href"));
 		}
 
 		@Override
-		public void carregarPreco() {
+		public void loadPrice() {
 			setPriceStr(elemento.select("div.imovel-item-preco").first().text().replace("Loca��o:", "")
 					.replace("R$", "").trim());
 			try {
@@ -96,13 +96,13 @@ public class Conexao extends ImobiliariaHtml {
 		}
 
 		@Override
-		public void carregarBairro() {
+		public void loadDistrict() {
 			setDistrict(elemento.select("div.imovel-item-endereco").first().text().replace("BLUMENAU / SC", "")
 					.replace("BAIRRO", "").trim());
 		}
 
 		@Override
-		public void carregarQuartos() {
+		public void loadRooms() {
 			Document documento = getDocumento();
 			Elements dados = documento.select("div.imovel-detalhe-conteudo-texto p");
 			if (dados.size() == 2) {
@@ -133,24 +133,24 @@ public class Conexao extends ImobiliariaHtml {
 		}
 
 		@Override
-		public void carregarVagas() {
+		public void loadParkingSpaces() {
 		}
 
 		@Override
-		public void carregarSuites() {
+		public void loadSuites() {
 		}
 
 		@Override
-		public void carregarArea() {
+		public void loadArea() {
 		}
 
 		@Override
-		public void carregarAnunciante() {
+		public void loadAdvertiser() {
 			setAdvertiser("Conex�o");
 		}
 
 		@Override
-		public void carregarCondominio() {
+		public void loadCondominium() {
 			Document documento = getDocumento();
 			Elements dados = documento.select("div.imovel-detalhe-preco");
 			for (Element dado : dados) {
@@ -164,16 +164,16 @@ public class Conexao extends ImobiliariaHtml {
 		}
 
 		@Override
-		public void carregarEndereco() {
+		public void loadAddress() {
 		}
 
 	}
 
 	public static void main(String[] args) {
-		Imobiliaria imobiliaria = new Conexao(PropertyType.APARTMENT, ActionType.RENT);
-		List<IImovel> imos = imobiliaria.getProperties();
+		RealState imobiliaria = new Conexao(PropertyType.APARTMENT, ActionType.RENT);
+		List<IProperty> imos = imobiliaria.getProperties();
 		Excel.getInstance().clear();
-		for (IImovel imo : imos) {
+		for (IProperty imo : imos) {
 			Excel.getInstance().addImovel(imo);
 			JSONObject json = Utils.imovelToJson(imo);
 			System.out.println(json.toString());

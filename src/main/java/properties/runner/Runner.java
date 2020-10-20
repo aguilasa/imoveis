@@ -2,21 +2,21 @@ package properties.runner;
 
 import java.util.List;
 
-import properties.base.IImobiliaria;
-import properties.base.IImovel;
+import properties.base.IRealState;
+import properties.base.IProperty;
 import properties.excel.Excel;
 
 public class Runner implements Runnable {
 
-    private IImobiliaria imobiliaria;
+    private IRealState imobiliaria;
 
-    public Runner(IImobiliaria imobiliaria) {
+    public Runner(IRealState imobiliaria) {
         this.imobiliaria = imobiliaria;
     }
 
     @Override
     public void run() {
-        List<IImovel> imoveis = imobiliaria.getProperties();
+        List<IProperty> imoveis = imobiliaria.getProperties();
         Excel.getInstance().addTodosImovel(imoveis);
     }
 

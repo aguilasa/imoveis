@@ -24,20 +24,20 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import properties.base.ActionType;
-import properties.base.IImovel;
-import properties.base.Imobiliaria;
-import properties.base.ImobiliariaJson;
-import properties.base.ImovelJson;
-import properties.base.Parametro;
+import properties.base.IProperty;
+import properties.base.RealState;
+import properties.base.RealStateJson;
+import properties.base.PropertyJson;
+import properties.base.Parameter;
 import properties.base.PropertyType;
 import properties.utils.Utils;
 
-public class Orbi extends ImobiliariaJson {
+public class Orbi extends RealStateJson {
 
 	private static final String URL = "http://www.orbi-imoveis.com.br/imovel/detalhes/%s/%s";
-	private static final Parametro[] PARAMETROS = { new Parametro("ativo", "1"),
-			new Parametro("quantidade_itens", "15"), new Parametro("cidade", "8377"), new Parametro("type", "2"),
-			new Parametro("order", "ordem"), new Parametro("order_type", "asc") };
+	private static final Parameter[] PARAMETROS = { new Parameter("ativo", "1"),
+			new Parameter("quantidade_itens", "15"), new Parameter("cidade", "8377"), new Parameter("type", "2"),
+			new Parameter("order", "ordem"), new Parameter("order_type", "asc") };
 
 	public Orbi(PropertyType type, ActionType action) {
 		super(type, action);
@@ -73,7 +73,7 @@ public class Orbi extends ImobiliariaJson {
 	}
 
 	@Override
-	public IImovel newImovel(JSONObject elemento) {
+	public IProperty newImovel(JSONObject elemento) {
 		return new Imovel(elemento, type);
 	}
 
@@ -108,51 +108,51 @@ public class Orbi extends ImobiliariaJson {
 	private URI getURI(int page) throws URISyntaxException {
 		URIBuilder builder = new URIBuilder();
 		builder.setScheme("http").setHost("www.orbi-imoveis.com.br").setPath("/api-imobiliaria/imovel");
-		List<Parametro> parameters = getParametros(page);
-		for (Parametro par : parameters) {
+		List<Parameter> parameters = getParametros(page);
+		for (Parameter par : parameters) {
 			builder.addParameter(par.getChave(), par.getValor());
 		}
 		URI uri = builder.build();
 		return uri;
 	}
 
-	private List<Parametro> getParametros(int page) {
-		List<Parametro> parametros = new LinkedList<>(Arrays.asList(PARAMETROS));
+	private List<Parameter> getParametros(int page) {
+		List<Parameter> parametros = new LinkedList<>(Arrays.asList(PARAMETROS));
 		if (page > 0) {
-			parametros.add(new Parametro("page", String.valueOf(page)));
+			parametros.add(new Parameter("page", String.valueOf(page)));
 		}
-		parametros.add(new Parametro("categoria", type.equals(PropertyType.APARTMENT) ? "2" : "1"));
+		parametros.add(new Parameter("categoria", type.equals(PropertyType.APARTMENT) ? "2" : "1"));
 		return parametros;
 	}
 
-	private class Imovel extends ImovelJson {
+	private class Imovel extends PropertyJson {
 
 		public Imovel(JSONObject elemento, PropertyType type) {
 			super(elemento, type);
 		}
 
 		@Override
-		public void carregarNome() {
+		public void loadName() {
 			setName(elemento.getString("titulo"));
 		}
 
 		@Override
-		public void carregarUrl() {
+		public void loadUrl() {
 			setUrl(String.format(URL, elemento.getString("referencia"), slug(elemento.getString("titulo"))));
 		}
 
 		@Override
-		public void carregarPreco() {
+		public void loadPrice() {
 			setPrice(textoParaReal(elemento.getString("valor")));
 		}
 
 		@Override
-		public void carregarBairro() {
+		public void loadDistrict() {
 			setDistrict(elemento.getJSONObject("bairro").getString("nome"));
 		}
 
 		@Override
-		public void carregarQuartos() {
+		public void loadRooms() {
 			String valor = buscarCaracteristica("quarto");
 			if (!valor.isEmpty()) {
 				setRooms(Integer.valueOf(valor));
@@ -160,7 +160,7 @@ public class Orbi extends ImobiliariaJson {
 		}
 
 		@Override
-		public void carregarVagas() {
+		public void loadParkingSpaces() {
 			String valor = buscarCaracteristica("garagem");
 			if (!valor.isEmpty()) {
 				setParkingSpaces(Integer.valueOf(valor));
@@ -168,7 +168,7 @@ public class Orbi extends ImobiliariaJson {
 		}
 
 		@Override
-		public void carregarSuites() {
+		public void loadSuites() {
 			String valor = buscarCaracteristica("su�te");
 			if (!valor.isEmpty()) {
 				setSuites(Integer.valueOf(valor));
@@ -176,7 +176,7 @@ public class Orbi extends ImobiliariaJson {
 		}
 
 		@Override
-		public void carregarArea() {
+		public void loadArea() {
 			String valor = buscarCaracteristica("�rea");
 			if (!valor.isEmpty()) {
 				setArea(textoParaReal(valor));
@@ -184,12 +184,12 @@ public class Orbi extends ImobiliariaJson {
 		}
 
 		@Override
-		public void carregarAnunciante() {
+		public void loadAdvertiser() {
 			setAdvertiser("Orbi");
 		}
 
 		@Override
-		public void carregarCondominio() {
+		public void loadCondominium() {
 			String valor = elemento.getString("descricao");
 			if (!valor.isEmpty()) {
 				setCondominium(buscarCondominio(valor));
@@ -197,7 +197,7 @@ public class Orbi extends ImobiliariaJson {
 		}
 
 		@Override
-		public void carregarEndereco() {
+		public void loadAddress() {
 			setAddress(elemento.getString("rua"));
 		}
 
@@ -216,9 +216,9 @@ public class Orbi extends ImobiliariaJson {
 	}
 
 	public static void main(String[] args) {
-		Imobiliaria imobiliaria = new Orbi(PropertyType.APARTMENT, ActionType.RENT);
-		List<IImovel> imos = imobiliaria.getProperties();
-		for (IImovel imo : imos) {
+		RealState imobiliaria = new Orbi(PropertyType.APARTMENT, ActionType.RENT);
+		List<IProperty> imos = imobiliaria.getProperties();
+		for (IProperty imo : imos) {
 			JSONObject json = Utils.imovelToJson(imo);
 			System.out.println(json.toString());
 		}

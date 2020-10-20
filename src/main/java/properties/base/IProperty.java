@@ -1,6 +1,6 @@
 package properties.base;
 
-public interface IImovel {
+public interface IProperty {
 
 	void setName(String name);
 
@@ -54,27 +54,27 @@ public interface IImovel {
 
 	PropertyType getPropertyType();
 
-	void carregarUrl();
+	void loadUrl();
 
-	void carregarNome();
+	void loadName();
 
-	void carregarBairro();
+	void loadDistrict();
 
-	void carregarPreco();
+	void loadPrice();
 
-	void carregarQuartos();
+	void loadRooms();
 
-	void carregarVagas();
+	void loadParkingSpaces();
 
-	void carregarSuites();
+	void loadSuites();
 
-	void carregarArea();
+	void loadArea();
 
-	void carregarAnunciante();
+	void loadAdvertiser();
 
-	void carregarCondominio();
+	void loadCondominium();
 
-	void carregarEndereco();
+	void loadAddress();
 
 	void load();
 

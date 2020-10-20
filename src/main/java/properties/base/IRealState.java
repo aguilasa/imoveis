@@ -2,7 +2,7 @@ package properties.base;
 
 import java.util.List;
 
-public interface IImobiliaria {
+public interface IRealState {
 
 	PropertyType getType();
 
@@ -18,7 +18,7 @@ public interface IImobiliaria {
 
 	int getPages();
 
-	List<IImovel> getProperties();
+	List<IProperty> getProperties();
 
 	void load();
 

@@ -3,7 +3,7 @@ package properties.base;
 import lombok.Getter;
 import lombok.Setter;
 
-public abstract class Imovel implements IImovel {
+public abstract class Property implements IProperty {
 
 	@Getter
 	@Setter
@@ -47,16 +47,16 @@ public abstract class Imovel implements IImovel {
 
 	@Override
 	public void load() {
-		carregarUrl();
-		carregarNome();
-		carregarBairro();
-		carregarPreco();
-		carregarQuartos();
-		carregarVagas();
-		carregarArea();
-		carregarSuites();
-		carregarAnunciante();
-		carregarCondominio();
-		carregarEndereco();
+		loadUrl();
+		loadName();
+		loadDistrict();
+		loadPrice();
+		loadRooms();
+		loadParkingSpaces();
+		loadArea();
+		loadSuites();
+		loadAdvertiser();
+		loadCondominium();
+		loadAddress();
 	}
 }

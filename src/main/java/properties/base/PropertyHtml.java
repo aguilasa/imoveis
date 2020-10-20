@@ -6,7 +6,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
-public abstract class ImovelHtml extends Imovel {
+public abstract class PropertyHtml extends Property {
 
 	private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36";
 
@@ -14,7 +14,7 @@ public abstract class ImovelHtml extends Imovel {
 
 	private Document documento = null;
 
-	public ImovelHtml(Element elemento, PropertyType type) {
+	public PropertyHtml(Element elemento, PropertyType type) {
 		this.elemento = elemento;
 		this.setPropertyType(type);
 	}

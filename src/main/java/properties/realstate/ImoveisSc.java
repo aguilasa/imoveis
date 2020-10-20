@@ -14,14 +14,14 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import properties.base.ActionType;
-import properties.base.IImovel;
-import properties.base.Imobiliaria;
-import properties.base.ImobiliariaHtml;
-import properties.base.ImovelHtml;
+import properties.base.IProperty;
+import properties.base.RealState;
+import properties.base.RealStateHtml;
+import properties.base.PropertyHtml;
 import properties.base.PropertyType;
 import properties.utils.Utils;
 
-public class ImoveisSc extends ImobiliariaHtml {
+public class ImoveisSc extends RealStateHtml {
 
 	private static final String URLBASE = "https://www.imoveis-sc.com.br/blumenau/alugar/%s?page=%d";
 
@@ -30,7 +30,7 @@ public class ImoveisSc extends ImobiliariaHtml {
 	}
 
 	@Override
-	public Elements getElementos() {
+	public Elements getElements() {
 		Document document = getDocument(getUrl());
 		return document.select("article.imovel");
 	}
@@ -55,30 +55,30 @@ public class ImoveisSc extends ImobiliariaHtml {
 	}
 
 	@Override
-	public IImovel newImovel(Element elemento) {
+	public IProperty newProperty(Element elemento) {
 		return new ImovelImpl(elemento, type);
 	}
 
-	private class ImovelImpl extends ImovelHtml {
+	private class ImovelImpl extends PropertyHtml {
 
 		public ImovelImpl(Element elemento, PropertyType type) {
 			super(elemento, type);
 		}
 
 		@Override
-		public void carregarNome() {
+		public void loadName() {
 			Element link = elemento.select("h2.imovel-titulo a").first();
 			setName(link.text().trim());
 		}
 
 		@Override
-		public void carregarUrl() {
+		public void loadUrl() {
 			Element link = elemento.select("h2.imovel-titulo a").first();
 			setUrl(link.attr("href"));
 		}
 
 		@Override
-		public void carregarPreco() {
+		public void loadPrice() {
 			setPriceStr(elemento.select("span.imovel-preco small").first().text().trim());
 			try {
 				setPrice(textoParaReal(getPriceStr()));
@@ -88,12 +88,12 @@ public class ImoveisSc extends ImobiliariaHtml {
 		}
 
 		@Override
-		public void carregarBairro() {
+		public void loadDistrict() {
 			setDistrict(elemento.select("div.imovel-extra strong").first().text().replace("Blumenau, ", "").trim());
 		}
 
 		@Override
-		public void carregarQuartos() {
+		public void loadRooms() {
 			Elements dados = elemento.select("ul.imovel-info li");
 			for (Element dado : dados) {
 				String valor = dado.text().trim();
@@ -105,7 +105,7 @@ public class ImoveisSc extends ImobiliariaHtml {
 		}
 
 		@Override
-		public void carregarVagas() {
+		public void loadParkingSpaces() {
 			Elements dados = elemento.select("ul.imovel-info li");
 			for (Element dado : dados) {
 				String valor = dado.text().trim();
@@ -117,7 +117,7 @@ public class ImoveisSc extends ImobiliariaHtml {
 		}
 
 		@Override
-		public void carregarSuites() {
+		public void loadSuites() {
 			Elements dados = elemento.select("ul.imovel-info li");
 			for (Element dado : dados) {
 				String valor = dado.text().trim();
@@ -129,7 +129,7 @@ public class ImoveisSc extends ImobiliariaHtml {
 		}
 
 		@Override
-		public void carregarArea() {
+		public void loadArea() {
 			Elements dados = elemento.select("ul.imovel-info li");
 			for (Element dado : dados) {
 				String valor = dado.text().trim();
@@ -141,7 +141,7 @@ public class ImoveisSc extends ImobiliariaHtml {
 		}
 
 		@Override
-		public void carregarAnunciante() {
+		public void loadAdvertiser() {
 			String advertiser = elemento.select("a.imovel-anunciante").first().attr("title").trim();
 			String[] quebra = advertiser.split(" - ");
 			if (quebra.length == 2) {
@@ -151,7 +151,7 @@ public class ImoveisSc extends ImobiliariaHtml {
 		}
 
 		@Override
-		public void carregarCondominio() {
+		public void loadCondominium() {
 			Document documento = getDocumento();
 			Elements dados = documento.select("li.visualizacao-caracteristica-item");
 			if (!dados.isEmpty()) {
@@ -180,7 +180,7 @@ public class ImoveisSc extends ImobiliariaHtml {
 		}
 
 		@Override
-		public void carregarEndereco() {
+		public void loadAddress() {
 			Document documento = getDocumento();
 			Elements selecao = documento.select("address.visualizar-endereco-texto");
 			if (!selecao.isEmpty()) {
@@ -191,9 +191,9 @@ public class ImoveisSc extends ImobiliariaHtml {
 	}
 
 	public static void main(String[] args) {
-		Imobiliaria imobiliaria = new ImoveisSc(PropertyType.APARTMENT, ActionType.RENT);
-		List<IImovel> imos = imobiliaria.getProperties();
-		for (IImovel imo : imos) {
+		RealState imobiliaria = new ImoveisSc(PropertyType.APARTMENT, ActionType.RENT);
+		List<IProperty> imos = imobiliaria.getProperties();
+		for (IProperty imo : imos) {
 			JSONObject json = Utils.imovelToJson(imo);
 			System.out.println(json.toString());
 		}

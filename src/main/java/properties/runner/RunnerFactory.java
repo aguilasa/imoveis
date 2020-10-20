@@ -8,7 +8,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-import properties.base.IImobiliaria;
+import properties.base.IRealState;
 import properties.base.PropertyType;
 
 public class RunnerFactory {
@@ -28,14 +28,14 @@ public class RunnerFactory {
 		for (String name : list) {
 			String className = String.format("%s.%s", PACKAGE, name);
 			for (PropertyType parameter : PARAMETERS) {
-				IImobiliaria object = createObject(className, parameter);
+				IRealState object = createObject(className, parameter);
 				runners.add(new Runner(object));
 			}
 		}
 		return runners;
 	}
 
-	private static IImobiliaria createObject(String className, PropertyType parameter) {
+	private static IRealState createObject(String className, PropertyType parameter) {
 		Object object = null;
 		try {
 			Class<?> classDefinition = Class.forName(className);
@@ -56,7 +56,7 @@ public class RunnerFactory {
 		} catch (InvocationTargetException e) {
 			System.out.println(e);
 		}
-		return (IImobiliaria) object;
+		return (IRealState) object;
 	}
 
 }

@@ -14,15 +14,15 @@ import org.jsoup.nodes.TextNode;
 import org.jsoup.select.Elements;
 
 import properties.base.ActionType;
-import properties.base.IImovel;
-import properties.base.Imobiliaria;
-import properties.base.ImobiliariaHtml;
-import properties.base.ImovelHtml;
+import properties.base.IProperty;
+import properties.base.RealState;
+import properties.base.RealStateHtml;
+import properties.base.PropertyHtml;
 import properties.base.PropertyType;
 import properties.excel.Excel;
 import properties.utils.Utils;
 
-public class Caravela extends ImobiliariaHtml {
+public class Caravela extends RealStateHtml {
 
 	private static final String BASEIMOVEL = "http://caravela.imb.br/site/";
 	private static final String URLBASE = "http://caravela.imb.br/site/busca.php?negocio=2&typeimovel=%d&cidade=1039";
@@ -42,7 +42,7 @@ public class Caravela extends ImobiliariaHtml {
 	}
 
 	@Override
-	public Elements getElementos() {
+	public Elements getElements() {
 		Document document = getDocument();
 		return document.select("div.quadro_prod");
 	}
@@ -53,24 +53,24 @@ public class Caravela extends ImobiliariaHtml {
 	}
 
 	@Override
-	public IImovel newImovel(Element elemento) {
+	public IProperty newProperty(Element elemento) {
 		return new ImovelImpl(elemento, type);
 	}
 
-	private class ImovelImpl extends ImovelHtml {
+	private class ImovelImpl extends PropertyHtml {
 
 		public ImovelImpl(Element elemento, PropertyType type) {
 			super(elemento, type);
 		}
 
 		@Override
-		public void carregarUrl() {
+		public void loadUrl() {
 			Element link = elemento.select("a").first();
 			setUrl(BASEIMOVEL.concat(link.attr("href")));
 		}
 
 		@Override
-		public void carregarNome() {
+		public void loadName() {
 			Element dados = elemento.select("span.dados_prod").first();
 			if (dados != null) {
 				List<TextNode> nodes = dados.childNodes().stream().filter(c -> c instanceof TextNode)
@@ -87,49 +87,49 @@ public class Caravela extends ImobiliariaHtml {
 		}
 
 		@Override
-		public void carregarBairro() {
+		public void loadDistrict() {
 		}
 
 		@Override
-		public void carregarPreco() {
+		public void loadPrice() {
 		}
 
 		@Override
-		public void carregarQuartos() {
+		public void loadRooms() {
 		}
 
 		@Override
-		public void carregarVagas() {
+		public void loadParkingSpaces() {
 		}
 
 		@Override
-		public void carregarSuites() {
+		public void loadSuites() {
 		}
 
 		@Override
-		public void carregarArea() {
+		public void loadArea() {
 		}
 
 		@Override
-		public void carregarAnunciante() {
+		public void loadAdvertiser() {
 			setAdvertiser("Caravela");
 		}
 
 		@Override
-		public void carregarCondominio() {
+		public void loadCondominium() {
 		}
 
 		@Override
-		public void carregarEndereco() {
+		public void loadAddress() {
 		}
 
 	}
 
 	public static void main(String[] args) {
-		Imobiliaria imobiliaria = new Caravela(PropertyType.APARTMENT, ActionType.RENT);
-		List<IImovel> imos = imobiliaria.getProperties();
+		RealState imobiliaria = new Caravela(PropertyType.APARTMENT, ActionType.RENT);
+		List<IProperty> imos = imobiliaria.getProperties();
 		Excel.getInstance().clear();
-		for (IImovel imo : imos) {
+		for (IProperty imo : imos) {
 			Excel.getInstance().addImovel(imo);
 			JSONObject json = Utils.imovelToJson(imo);
 			System.out.println(json.toString());

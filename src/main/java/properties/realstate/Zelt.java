@@ -13,15 +13,15 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import properties.base.ActionType;
-import properties.base.IImovel;
-import properties.base.Imobiliaria;
-import properties.base.ImobiliariaHtml;
-import properties.base.ImovelHtml;
+import properties.base.IProperty;
+import properties.base.RealState;
+import properties.base.RealStateHtml;
+import properties.base.PropertyHtml;
 import properties.base.PropertyType;
 import properties.excel.Excel;
 import properties.utils.Utils;
 
-public class Zelt extends ImobiliariaHtml {
+public class Zelt extends RealStateHtml {
 
     private static final String IMOVELBASE = "http://www.zelt.com.br";
     private static final String URLBASE = "http://www.zelt.com.br/public/search";
@@ -54,7 +54,7 @@ public class Zelt extends ImobiliariaHtml {
     }
 
     @Override
-    public Elements getElementos() {
+    public Elements getElements() {
         Document document = getDocument();
         return document.select("div.swt-realty-preview.swt-realty-preview--search-list");
     }
@@ -83,36 +83,36 @@ public class Zelt extends ImobiliariaHtml {
     }
 
     @Override
-    public IImovel newImovel(Element elemento) {
+    public IProperty newProperty(Element elemento) {
         return new ImovelImpl(elemento, type);
     }
 
-    private class ImovelImpl extends ImovelHtml {
+    private class ImovelImpl extends PropertyHtml {
 
         public ImovelImpl(Element elemento, PropertyType type) {
             super(elemento, type);
         }
 
         @Override
-        public void carregarUrl() {
+        public void loadUrl() {
             Element link = elemento.select("a").first();
             setUrl(IMOVELBASE.concat(link.attr("href")));
         }
 
         @Override
-        public void carregarNome() {
+        public void loadName() {
             String texto1 = elemento.select("p.swt-realty-preview__sub-heading.swt-color-text--1.swt-size-text--5").first().text().trim();
             String texto2 = elemento.select("h3.swt-realty-preview__heading.swt-size-text--3").first().text().trim();
             setName(String.format("%s - %s", texto1, texto2));
         }
 
         @Override
-        public void carregarBairro() {
+        public void loadDistrict() {
             setDistrict(elemento.select("h3.swt-realty-preview__heading.swt-size-text--3").first().text().replace("(Blumenau - SC)", "").trim());
         }
 
         @Override
-        public void carregarPreco() {
+        public void loadPrice() {
             Elements dados = elemento.select("dd.swt-price__value");
             setPriceStr(dados.last().text().trim());
             try {
@@ -123,7 +123,7 @@ public class Zelt extends ImobiliariaHtml {
         }
 
         @Override
-        public void carregarQuartos() {
+        public void loadRooms() {
             Elements dados = elemento.select("li.swt-realty-features__item.swt-realty-preview__feature");
             for (Element dado : dados) {
                 String texto = dado.text().trim();
@@ -146,24 +146,24 @@ public class Zelt extends ImobiliariaHtml {
         }
 
         @Override
-        public void carregarVagas() {
+        public void loadParkingSpaces() {
         }
 
         @Override
-        public void carregarSuites() {
+        public void loadSuites() {
         }
 
         @Override
-        public void carregarArea() {
+        public void loadArea() {
         }
 
         @Override
-        public void carregarAnunciante() {
+        public void loadAdvertiser() {
             setAdvertiser("Zelt");
         }
 
         @Override
-        public void carregarCondominio() {
+        public void loadCondominium() {
             Document documento = getDocumento();
             Elements dados = documento.select("li.swt-realty-features__item.swt-realty-details__feature");
             for (Element dado : dados) {
@@ -177,16 +177,16 @@ public class Zelt extends ImobiliariaHtml {
         }
 
         @Override
-        public void carregarEndereco() {
+        public void loadAddress() {
         }
 
     }
 
     public static void main(String[] args) {
-        Imobiliaria imobiliaria = new Zelt(PropertyType.HOUSE, ActionType.RENT);
-        List<IImovel> imos = imobiliaria.getProperties();
+        RealState imobiliaria = new Zelt(PropertyType.HOUSE, ActionType.RENT);
+        List<IProperty> imos = imobiliaria.getProperties();
         Excel.getInstance().clear();
-        for (IImovel imo : imos) {
+        for (IProperty imo : imos) {
             Excel.getInstance().addImovel(imo);
             JSONObject json = Utils.imovelToJson(imo);
             System.out.println(json.toString());

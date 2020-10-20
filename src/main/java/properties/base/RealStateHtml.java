@@ -11,14 +11,14 @@ import org.jsoup.select.Elements;
 
 import lombok.Setter;
 
-public abstract class ImobiliariaHtml extends Imobiliaria {
+public abstract class RealStateHtml extends RealState {
 
 	private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36";
 
 	@Setter
 	private boolean post = false;
 
-	public ImobiliariaHtml(PropertyType type, ActionType action) {
+	public RealStateHtml(PropertyType type, ActionType action) {
 		super(type, action);
 	}
 
@@ -27,11 +27,11 @@ public abstract class ImobiliariaHtml extends Imobiliaria {
 
 		for (int i = 1; i <= pages; i++) {
 			setPage(i);
-			Elements elementos = getElementos();
+			Elements elementos = getElements();
 			for (Element elemento : elementos) {
-				IImovel imovel = newImovel(elemento);
+				IProperty imovel = newProperty(elemento);
 				imovel.load();
-				imoveis.add(imovel);
+				properties.add(imovel);
 			}
 		}
 	}
@@ -49,10 +49,10 @@ public abstract class ImobiliariaHtml extends Imobiliaria {
 		}
 	}
 
-	public abstract Elements getElementos();
+	public abstract Elements getElements();
 
 	public abstract Map<String, String> getPayload();
 
-	public abstract IImovel newImovel(Element elemento);
+	public abstract IProperty newProperty(Element element);
 
 }

@@ -3,9 +3,9 @@ package properties.base;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-public abstract class ImobiliariaJson extends Imobiliaria {
+public abstract class RealStateJson extends RealState {
 
-	public ImobiliariaJson(PropertyType type, ActionType action) {
+	public RealStateJson(PropertyType type, ActionType action) {
 		super(type, action);
 	}
 
@@ -19,15 +19,15 @@ public abstract class ImobiliariaJson extends Imobiliaria {
 			int total = elementos.length();
 			for (int j = 0; j < total; j++) {
 				JSONObject elemento = elementos.getJSONObject(j);
-				IImovel imovel = newImovel(elemento);
+				IProperty imovel = newImovel(elemento);
 				imovel.load();
-				imoveis.add(imovel);
+				properties.add(imovel);
 			}
 		}
 	}
 
 	public abstract JSONArray getElementos(String url);
 
-	public abstract IImovel newImovel(JSONObject elemento);
+	public abstract IProperty newImovel(JSONObject elemento);
 
 }

@@ -7,7 +7,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.json.JSONObject;
 
-import properties.base.IImovel;
+import properties.base.IProperty;
 
 public class Utils {
 
@@ -19,7 +19,7 @@ public class Utils {
     private static final Pattern padrao_dois = Pattern.compile(valor_padrao_dois, Pattern.CASE_INSENSITIVE);
     private static final Pattern padrao = Pattern.compile(valor_padrao, Pattern.CASE_INSENSITIVE);
 
-    public static JSONObject imovelToJson(IImovel imovel) {
+    public static JSONObject imovelToJson(IProperty imovel) {
         JSONObject json = new JSONObject();
         json.put("nome", imovel.getName());
         json.put("url", imovel.getUrl());

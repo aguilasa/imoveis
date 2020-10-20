@@ -7,7 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
-public class Parametro {
+public class Parameter {
 
     private String chave;
     private String valor;
