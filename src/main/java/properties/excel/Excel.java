@@ -96,7 +96,7 @@ public class Excel {
 			cell.setCellStyle(style);
 			cell.setCellValue(imovel.getPrice());
 			if (imovel.getPrice() == 0) {
-				Comment comment = createComment(workbook, sheet, String.format("Preço: %s", imovel.getPriceStr()));
+				Comment comment = createComment(workbook, sheet, String.format("PreÃ§o: %s", imovel.getPriceStr()));
 				cell.setCellComment(comment);
 			}
 			cell = row.createCell(3);

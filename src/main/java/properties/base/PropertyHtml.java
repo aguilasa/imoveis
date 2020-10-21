@@ -6,6 +6,8 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
+import properties.utils.XPathHelper;
+
 public abstract class PropertyHtml extends Property {
 
 	private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36";
@@ -13,6 +15,7 @@ public abstract class PropertyHtml extends Property {
 	protected Element elemento;
 
 	private Document documento = null;
+	private XPathHelper xpath = null;
 
 	public PropertyHtml(Element elemento, PropertyType type) {
 		this.elemento = elemento;
@@ -34,6 +37,17 @@ public abstract class PropertyHtml extends Property {
 			}
 		}
 		return documento;
+	}
+
+	protected XPathHelper xpath() {
+		if (xpath == null) {
+			try {
+				xpath = new XPathHelper(getUrl());
+			} catch (IOException e) {
+				new Exception(e);
+			}
+		}
+		return xpath;
 	}
 
 }

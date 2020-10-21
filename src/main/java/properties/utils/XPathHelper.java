@@ -25,27 +25,38 @@ public class XPathHelper {
 		this(JSoupUtils.getW3CDocument(url));
 	}
 
-	public List<String> list(String expression) throws XPathExpressionException {
+	public List<String> list(String expression) {
 		return list(expression, true);
 	}
 
-	public List<String> list(String expression, boolean addEmpty) throws XPathExpressionException {
+	public List<String> list(String expression, boolean addEmpty) {
 		List<String> result = new ArrayList<>();
 		XPath xPath = XPathFactory.newInstance().newXPath();
-		NodeList nodes = (NodeList) xPath.evaluate(expression, doc.getDocumentElement(), XPathConstants.NODESET);
-		for (int i = 0; i < nodes.getLength(); ++i) {
-			String value = nodes.item(i).getNodeValue().trim();
-			if (!addEmpty && StringUtil.isBlank(value)) {
-				continue;
+		NodeList nodes;
+		try {
+			nodes = (NodeList) xPath.evaluate(expression, doc.getDocumentElement(), XPathConstants.NODESET);
+			for (int i = 0; i < nodes.getLength(); ++i) {
+				String value = nodes.item(i).getNodeValue().trim();
+				if (!addEmpty && StringUtil.isBlank(value)) {
+					continue;
+				}
+				result.add(value);
 			}
-			result.add(value);
+		} catch (XPathExpressionException e) {
+			new Exception(e);
 		}
 		return result;
 	}
 
-	public String text(String expression) throws XPathExpressionException {
-		XPath xPath = XPathFactory.newInstance().newXPath();
-		return ((String) xPath.evaluate(expression, doc.getDocumentElement(), XPathConstants.STRING)).trim();
+	public String text(String expression) {
+		String result = "";
+		try {
+			XPath xPath = XPathFactory.newInstance().newXPath();
+			result = ((String) xPath.evaluate(expression, doc.getDocumentElement(), XPathConstants.STRING)).trim();
+		} catch (XPathExpressionException e) {
+			new Exception(e);
+		}
+		return result;
 	}
 
 }

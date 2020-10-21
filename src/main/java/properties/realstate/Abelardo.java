@@ -7,6 +7,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -66,8 +67,8 @@ public class Abelardo extends RealStateHtml {
 
 		@Override
 		public void loadName() {
-			Element link = elemento.select("div.content-title-inner h1").first();
-			setName(link.text());
+			String value = xpath().text("//div[@class=\"content-title-inner\"]/div/h1[text()]");
+			setName(value);
 		}
 
 		@Override
@@ -79,7 +80,8 @@ public class Abelardo extends RealStateHtml {
 
 		@Override
 		public void loadPrice() {
-			setPriceStr(elemento.select("h3").first().text().trim());
+			String value = xpath().text("//li[strong=\"Valor Locação:\"]/span[text()]").replace("R$", "").trim();
+			setPriceStr(value);
 			try {
 				setPrice(textoParaReal(getPriceStr()));
 			} catch (Exception e) {
@@ -89,47 +91,39 @@ public class Abelardo extends RealStateHtml {
 
 		@Override
 		public void loadDistrict() {
-			Elements valores = elemento.select("div.listing-box-content dd");
-			if (!valores.isEmpty()) {
-				Element valor = valores.first();
-				String texto = valor.text().trim();
-				setDistrict(texto);
-			}
+			String value = xpath().text("//li[strong=\"Bairro:\"]/span[text()]");
+			setDistrict(value);
 		}
 
 		@Override
 		public void loadRooms() {
-			Document documento = getDocumento();
-			Elements dados = documento.select("div.listing-box-content span");
-			if (!dados.isEmpty()) {
-				setRooms(Integer.valueOf(dados.get(0).text().trim()));
+			String value = xpath().text("//li[strong=\"Dormitórios:\"]/span[text()]");
+			if (StringUtils.isNotEmpty(value)) {
+				setRooms(Integer.valueOf(value));
 			}
 		}
 
 		@Override
 		public void loadParkingSpaces() {
-			Document documento = getDocumento();
-			Elements dados = documento.select("div.listing-box-content span");
-			if (!dados.isEmpty()) {
-				setParkingSpaces(Integer.valueOf(dados.get(2).text().trim()));
+			String value = xpath().text("//div[div=\"Vagas de Garagem\"]/div[2][text()]");
+			if (StringUtils.isNotEmpty(value)) {
+				setParkingSpaces(Integer.valueOf(value.trim()));
 			}
 		}
 
 		@Override
 		public void loadSuites() {
-			Document documento = getDocumento();
-			Elements dados = documento.select("div.listing-box-content span");
-			if (!dados.isEmpty()) {
-				setSuites(Integer.valueOf(dados.get(1).text().trim()));
+			String value = xpath().text("//li[strong=\"Suítes:\"]/span[text()]");
+			if (StringUtils.isNotEmpty(value)) {
+				setSuites(Integer.valueOf(value));
 			}
 		}
 
 		@Override
 		public void loadArea() {
-			Document documento = getDocumento();
-			Elements dados = documento.select("div.listing-box-content span");
-			if (!dados.isEmpty()) {
-				setArea(textoParaReal(dados.get(3).text().replace("M2", "").trim()));
+			String value = xpath().text("//li[strong=\"Área Útil:\"]/span[text()]").replace("M2", "").trim();
+			if (StringUtils.isNotEmpty(value)) {
+				setArea(textoParaReal(value));
 			}
 		}
 
@@ -140,12 +134,8 @@ public class Abelardo extends RealStateHtml {
 
 		@Override
 		public void loadCondominium() {
-			Document documento = getDocumento();
-			Elements resumo = documento.select("div.resumo-imovel");
-			if (!resumo.isEmpty()) {
-				String texto = resumo.first().text();
-				setCondominium(buscarCondominio(texto));
-			}
+			String value = xpath().text("//li[strong=\"Valor Condomínio:\"]/span[text()]");
+			setCondominium(buscarCondominio(value));
 		}
 
 		@Override
