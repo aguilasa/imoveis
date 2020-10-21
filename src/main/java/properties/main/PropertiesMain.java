@@ -8,10 +8,10 @@ import java.util.concurrent.TimeUnit;
 import properties.excel.Excel;
 import properties.runner.RunnerFactory;
 
-public class ImoveisMain {
+public class PropertiesMain {
 
     public static void main(String[] args) {
-        new ImoveisMain().run();
+        new PropertiesMain().run();
     }
 
     public void run() {
