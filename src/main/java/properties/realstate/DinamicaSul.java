@@ -167,7 +167,7 @@ public class DinamicaSul extends RealStateHtml {
     }
 
     public static void main(String[] args) {
-        RealState imobiliaria = new DinamicaSul(PropertyType.HOUSE, ActionType.RENT);
+        RealState imobiliaria = new DinamicaSul(PropertyType.House, ActionType.RENT);
         List<IProperty> imos = imobiliaria.getProperties();
         Excel.getInstance().clear();
         for (IProperty imo : imos) {

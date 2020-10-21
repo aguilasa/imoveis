@@ -54,7 +54,7 @@ public class Portal extends RealStateHtml {
         LinkedHashMap<String, String> payload = new LinkedHashMap<>();
         payload.put("opcao", "alugar");
         payload.put("cidades", "blumenau");
-        payload.put("types", type.equals(PropertyType.APARTMENT) ? "apartamento" : "casa");
+        payload.put("types", type.equals(PropertyType.Apartment) ? "apartamento" : "casa");
         if (page > 1) {
             int valor = (page - 1) * 24;
             payload.put("page", String.valueOf(valor));
@@ -155,7 +155,7 @@ public class Portal extends RealStateHtml {
     }
 
     public static void main(String[] args) {
-        RealState imobiliaria = new Portal(PropertyType.APARTMENT, ActionType.RENT);
+        RealState imobiliaria = new Portal(PropertyType.Apartment, ActionType.RENT);
         List<IProperty> imos = imobiliaria.getProperties();
         Excel.getInstance().clear();
         for (IProperty imo : imos) {

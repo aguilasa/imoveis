@@ -62,7 +62,7 @@ public class Zelt extends RealStateHtml {
     @Override
     public Map<String, String> getPayload() {
         LinkedHashMap<String, String> payload = new LinkedHashMap<>();
-        payload.put("type", type.equals(PropertyType.APARTMENT) ? "1" : "2");
+        payload.put("type", type.equals(PropertyType.Apartment) ? "1" : "2");
         payload.put("cidade", "8377");
         payload.put("goalId", "1");
         payload.put("viewMap", "");
@@ -183,7 +183,7 @@ public class Zelt extends RealStateHtml {
     }
 
     public static void main(String[] args) {
-        RealState imobiliaria = new Zelt(PropertyType.HOUSE, ActionType.RENT);
+        RealState imobiliaria = new Zelt(PropertyType.House, ActionType.RENT);
         List<IProperty> imos = imobiliaria.getProperties();
         Excel.getInstance().clear();
         for (IProperty imo : imos) {

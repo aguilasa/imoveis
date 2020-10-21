@@ -163,7 +163,7 @@ public class Abelardo extends RealStateHtml {
 	}
 
 	public static void main(String[] args) {
-		RealState imobiliaria = new Abelardo(PropertyType.HOUSE, ActionType.RENT);
+		RealState imobiliaria = new Abelardo(PropertyType.House, ActionType.RENT);
 		List<IProperty> imos = imobiliaria.getProperties();
 		Excel.getInstance().clear();
 		for (IProperty imo : imos) {

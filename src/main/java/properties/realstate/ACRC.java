@@ -172,7 +172,7 @@ public class ACRC extends RealStateHtml {
 	}
 
 	public static void main(String[] args) {
-		RealState imobiliaria = new ACRC(PropertyType.HOUSE, ActionType.RENT);
+		RealState imobiliaria = new ACRC(PropertyType.House, ActionType.RENT);
 		List<IProperty> imos = imobiliaria.getProperties();
 		Excel.getInstance().clear();
 		for (IProperty imo : imos) {

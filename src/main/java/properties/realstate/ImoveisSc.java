@@ -191,7 +191,7 @@ public class ImoveisSc extends RealStateHtml {
 	}
 
 	public static void main(String[] args) {
-		RealState imobiliaria = new ImoveisSc(PropertyType.APARTMENT, ActionType.RENT);
+		RealState imobiliaria = new ImoveisSc(PropertyType.Apartment, ActionType.RENT);
 		List<IProperty> imos = imobiliaria.getProperties();
 		for (IProperty imo : imos) {
 			JSONObject json = Utils.imovelToJson(imo);

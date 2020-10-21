@@ -38,7 +38,7 @@ public class Caravela extends RealStateHtml {
 
 	@Override
 	public String getUrl() {
-		return String.format(URLBASE, type.equals(PropertyType.APARTMENT) ? 2 : 3);
+		return String.format(URLBASE, type.equals(PropertyType.Apartment) ? 2 : 3);
 	}
 
 	@Override
@@ -126,7 +126,7 @@ public class Caravela extends RealStateHtml {
 	}
 
 	public static void main(String[] args) {
-		RealState imobiliaria = new Caravela(PropertyType.APARTMENT, ActionType.RENT);
+		RealState imobiliaria = new Caravela(PropertyType.Apartment, ActionType.RENT);
 		List<IProperty> imos = imobiliaria.getProperties();
 		Excel.getInstance().clear();
 		for (IProperty imo : imos) {

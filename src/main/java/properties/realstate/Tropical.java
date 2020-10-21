@@ -154,7 +154,7 @@ public class Tropical extends RealStateHtml {
     }
 
     public static void main(String[] args) {
-        RealState imobiliaria = new Tropical(PropertyType.APARTMENT, ActionType.RENT);
+        RealState imobiliaria = new Tropical(PropertyType.Apartment, ActionType.RENT);
         List<IProperty> imos = imobiliaria.getProperties();
         Excel.getInstance().clear();
         for (IProperty imo : imos) {

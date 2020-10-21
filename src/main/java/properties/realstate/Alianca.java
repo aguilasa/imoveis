@@ -69,7 +69,7 @@ public class Alianca extends RealStateHtml {
 		payload.put("codUF", "0");
 		payload.put("codCid", "11");
 		payload.put("codBai", "0");
-		payload.put("codTP", type.equals(PropertyType.APARTMENT) ? "2" : "1");
+		payload.put("codTP", type.equals(PropertyType.Apartment) ? "2" : "1");
 		payload.put("qtdQuartos", "0");
 		payload.put("qtdSuites", "0");
 		payload.put("qtdSalas", "0");
@@ -201,7 +201,7 @@ public class Alianca extends RealStateHtml {
 	}
 
 	public static void main(String[] args) {
-		RealState imobiliaria = new Alianca(PropertyType.HOUSE, ActionType.RENT);
+		RealState imobiliaria = new Alianca(PropertyType.House, ActionType.RENT);
 		List<IProperty> imos = imobiliaria.getProperties();
 		Excel.getInstance().clear();
 		for (IProperty imo : imos) {

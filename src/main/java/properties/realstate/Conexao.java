@@ -55,7 +55,7 @@ public class Conexao extends RealStateHtml {
 		LinkedHashMap<String, String> payload = new LinkedHashMap<>();
 		payload.put("operacao", "2");
 		payload.put("cidade", "4202404");
-		payload.put("type", type.equals(PropertyType.APARTMENT) ? "2" : "1");
+		payload.put("type", type.equals(PropertyType.Apartment) ? "2" : "1");
 		payload.put("qtd", "20");
 		payload.put("page", String.valueOf(page));
 		return payload;
@@ -170,7 +170,7 @@ public class Conexao extends RealStateHtml {
 	}
 
 	public static void main(String[] args) {
-		RealState imobiliaria = new Conexao(PropertyType.APARTMENT, ActionType.RENT);
+		RealState imobiliaria = new Conexao(PropertyType.Apartment, ActionType.RENT);
 		List<IProperty> imos = imobiliaria.getProperties();
 		Excel.getInstance().clear();
 		for (IProperty imo : imos) {

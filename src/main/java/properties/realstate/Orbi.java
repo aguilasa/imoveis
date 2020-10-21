@@ -121,7 +121,7 @@ public class Orbi extends RealStateJson {
 		if (page > 0) {
 			parametros.add(new Parameter("page", String.valueOf(page)));
 		}
-		parametros.add(new Parameter("categoria", type.equals(PropertyType.APARTMENT) ? "2" : "1"));
+		parametros.add(new Parameter("categoria", type.equals(PropertyType.Apartment) ? "2" : "1"));
 		return parametros;
 	}
 
@@ -216,7 +216,7 @@ public class Orbi extends RealStateJson {
 	}
 
 	public static void main(String[] args) {
-		RealState imobiliaria = new Orbi(PropertyType.APARTMENT, ActionType.RENT);
+		RealState imobiliaria = new Orbi(PropertyType.Apartment, ActionType.RENT);
 		List<IProperty> imos = imobiliaria.getProperties();
 		for (IProperty imo : imos) {
 			JSONObject json = Utils.imovelToJson(imo);

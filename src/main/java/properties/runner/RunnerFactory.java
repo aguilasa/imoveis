@@ -16,7 +16,7 @@ public class RunnerFactory {
 	public static final String PACKAGE = "properties.realstate";
 	public static final List<String> CLASSES = Arrays.asList("Abelardo", "ACRC", "Alianca", "Conexao", "Habitacao",
 			"ImoveisSc", "LFernando", "Orbi", "Portal", "Tropical", "DinamicaSul");
-	public static final PropertyType[] PARAMETERS = { PropertyType.APARTMENT, PropertyType.HOUSE };
+	public static final PropertyType[] PARAMETERS = { PropertyType.Apartment, PropertyType.House };
 
 	public static List<Runnable> getRunners() {
 		return getRunners(new ArrayList<>(CLASSES));
