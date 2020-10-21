@@ -23,8 +23,8 @@ import properties.utils.Utils;
 
 public class Abelardo extends RealStateHtml {
 
-	private static final String IMOVELBASE = "http://www.abelardoimoveis.com.br";
-	private static final String URLBASE = "http://www.abelardoimoveis.com.br/imoveis-type-%s-para-locacao-em-blumenau-pg-%s";
+	private static final String URLBASE = "https://www.abelardoimoveis.com.br/buscar?tipoNegocio=%s&tipoImovel=%d&cidade=4202404&dormitorios=&suites=&banheiros=&vagas=&valor_min=&valor_max=&bairro=";
+	private static Map<PropertyType, Integer> PropertyTypeValues = new LinkedHashMap<>();
 
 	public Abelardo(PropertyType type, ActionType action) {
 		super(type, action);
@@ -33,22 +33,18 @@ public class Abelardo extends RealStateHtml {
 	@Override
 	public Elements getElements() {
 		Document document = getDocument(getUrl());
-		return document.select("div.imovel");
+		return document.select("div.listing-box");
 	}
 
 	@Override
 	public String getUrl() {
-		return String.format(URLBASE, type, page);
+		String actionString = action.equals(ActionType.RENT) ? "alugar" : "comprar";
+		int propertyTypeValue = PropertyTypeValues.getOrDefault(type, 1);
+		return String.format(URLBASE, actionString, propertyTypeValue);
 	}
 
 	@Override
 	public int getPages() {
-		Document document = getDocument();
-		Elements pages = document.select("ul.nav-pages li a");
-		if (!pages.isEmpty()) {
-			String valor = pages.get(pages.size() - 2).text();
-			return Integer.valueOf(valor);
-		}
 		return 1;
 	}
 
@@ -70,19 +66,20 @@ public class Abelardo extends RealStateHtml {
 
 		@Override
 		public void loadName() {
-			Element link = elemento.select("a.visualizar-imovel").first();
-			setName(link.attr("title"));
+			Element link = elemento.select("div.content-title-inner h1").first();
+			setName(link.text());
 		}
 
 		@Override
 		public void loadUrl() {
-			Element link = elemento.select("a.visualizar-imovel").first();
-			setUrl(IMOVELBASE.concat(link.attr("href")));
+			String link = elemento.select("a").first().attr("href");
+			link = link.replaceAll("\r*\n", "");
+			setUrl(link);
 		}
 
 		@Override
 		public void loadPrice() {
-			setPriceStr(elemento.select("strong.preco-imovel").first().text().trim());
+			setPriceStr(elemento.select("h3").first().text().trim());
 			try {
 				setPrice(textoParaReal(getPriceStr()));
 			} catch (Exception e) {
@@ -92,15 +89,10 @@ public class Abelardo extends RealStateHtml {
 
 		@Override
 		public void loadDistrict() {
-			Elements valores = elemento.select("div.endereco-imovel");
+			Elements valores = elemento.select("div.listing-box-content dd");
 			if (!valores.isEmpty()) {
 				Element valor = valores.first();
 				String texto = valor.text().trim();
-				Elements span = valor.select("span");
-				if (!span.isEmpty()) {
-					texto = texto.replace(span.first().text().trim(), "");
-				}
-				texto = texto.replaceAll("Blumenau -", "").trim();
 				setDistrict(texto);
 			}
 		}
@@ -108,36 +100,36 @@ public class Abelardo extends RealStateHtml {
 		@Override
 		public void loadRooms() {
 			Document documento = getDocumento();
-			Elements dados = documento.select("div.dormitorios div.quantidade");
+			Elements dados = documento.select("div.listing-box-content span");
 			if (!dados.isEmpty()) {
-				setRooms(Integer.valueOf(dados.first().text().trim()));
+				setRooms(Integer.valueOf(dados.get(0).text().trim()));
 			}
 		}
 
 		@Override
 		public void loadParkingSpaces() {
 			Document documento = getDocumento();
-			Elements dados = documento.select("div.garagens div.quantidade");
+			Elements dados = documento.select("div.listing-box-content span");
 			if (!dados.isEmpty()) {
-				setParkingSpaces(Integer.valueOf(dados.first().text().trim()));
+				setParkingSpaces(Integer.valueOf(dados.get(2).text().trim()));
 			}
 		}
 
 		@Override
 		public void loadSuites() {
 			Document documento = getDocumento();
-			Elements dados = documento.select("div.suites div.quantidade");
+			Elements dados = documento.select("div.listing-box-content span");
 			if (!dados.isEmpty()) {
-				setSuites(Integer.valueOf(dados.first().text().trim()));
+				setSuites(Integer.valueOf(dados.get(1).text().trim()));
 			}
 		}
 
 		@Override
 		public void loadArea() {
 			Document documento = getDocumento();
-			Elements dados = documento.select("div.areaprivada div.quantidade");
+			Elements dados = documento.select("div.listing-box-content span");
 			if (!dados.isEmpty()) {
-				setArea(textoParaReal(dados.first().text().trim()));
+				setArea(textoParaReal(dados.get(3).text().replace("M2", "").trim()));
 			}
 		}
 
@@ -160,6 +152,25 @@ public class Abelardo extends RealStateHtml {
 		public void loadAddress() {
 		}
 
+	}
+
+	static {
+		PropertyTypeValues.put(PropertyType.Apartment, 1);
+		PropertyTypeValues.put(PropertyType.RuralArea, 29);
+		PropertyTypeValues.put(PropertyType.House, 23);
+		PropertyTypeValues.put(PropertyType.CountryHouse, 17);
+		PropertyTypeValues.put(PropertyType.Roof, 15);
+		PropertyTypeValues.put(PropertyType.Shed, 7);
+		PropertyTypeValues.put(PropertyType.Hotel, 28);
+		PropertyTypeValues.put(PropertyType.Studio, 9);
+		PropertyTypeValues.put(PropertyType.GroundFloorShop, 10);
+		PropertyTypeValues.put(PropertyType.CommercialPoint, 25);
+		PropertyTypeValues.put(PropertyType.Inn, 18);
+		PropertyTypeValues.put(PropertyType.OfficeBuilding, 11);
+		PropertyTypeValues.put(PropertyType.CommercialRoom, 13);
+		PropertyTypeValues.put(PropertyType.SmallFarm, 5);
+		PropertyTypeValues.put(PropertyType.TwoStoryhouse, 16);
+		PropertyTypeValues.put(PropertyType.Ground, 14);
 	}
 
 	public static void main(String[] args) {
