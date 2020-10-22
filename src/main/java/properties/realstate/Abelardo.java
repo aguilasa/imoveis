@@ -66,16 +66,16 @@ public class Abelardo extends RealStateHtml {
 		}
 
 		@Override
-		public void loadName() {
-			String value = xpath().text("//div[@class=\"content-title-inner\"]/div/h1[text()]");
-			setName(value);
-		}
-
-		@Override
 		public void loadUrl() {
 			String link = elemento.select("a").first().attr("href");
 			link = link.replaceAll("\r*\n", "");
 			setUrl(link);
+		}
+
+		@Override
+		public void loadName() {
+			String value = xpath().text("//div[@class=\"content-title-inner\"]/div/h1[text()]");
+			setName(value);
 		}
 
 		@Override
@@ -128,11 +128,6 @@ public class Abelardo extends RealStateHtml {
 		}
 
 		@Override
-		public void loadAdvertiser() {
-			setAdvertiser("Abelardo");
-		}
-
-		@Override
 		public void loadCondominium() {
 			String value = xpath().text("//li[strong=\"Valor Condomínio:\"]/span[text()]");
 			setCondominium(buscarCondominio(value));
@@ -140,6 +135,11 @@ public class Abelardo extends RealStateHtml {
 
 		@Override
 		public void loadAddress() {
+		}
+
+		@Override
+		public void loadAdvertiser() {
+			setAdvertiser("Abelardo");
 		}
 
 	}

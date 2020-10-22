@@ -96,15 +96,15 @@ public class Alianca extends RealStateHtml {
 		}
 
 		@Override
+		public void loadUrl() {
+		}
+
+		@Override
 		public void loadName() {
 			Element link = elemento.select("a.localizacao").first();
 			setName(link.text().replace("Bairro:", "").trim());
 			setUrl(URLBASE.concat(link.attr("href")));
 			setDistrict(getName());
-		}
-
-		@Override
-		public void loadUrl() {
 		}
 
 		@Override
@@ -159,11 +159,6 @@ public class Alianca extends RealStateHtml {
 		}
 
 		@Override
-		public void loadAdvertiser() {
-			setAdvertiser("Alian�a");
-		}
-
-		@Override
 		public void loadCondominium() {
 			Document documento = getDocumento();
 			Elements dados = documento.select("b.preco_m2");
@@ -196,6 +191,11 @@ public class Alianca extends RealStateHtml {
 					setAddress(localizacao.toString().trim());
 				}
 			}
+		}
+
+		@Override
+		public void loadAdvertiser() {
+			setAdvertiser("Aliança");
 		}
 
 	}
