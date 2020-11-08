@@ -17,6 +17,9 @@ public abstract class RealState implements IRealState {
 	@Getter
 	@Setter
 	protected int page;
+
+	protected PropertyTypeValues<?> typeValues = null;
+
 	private boolean carregou = false;
 	protected List<IProperty> properties = new LinkedList<>();
 

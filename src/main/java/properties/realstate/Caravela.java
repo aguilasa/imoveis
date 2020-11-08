@@ -5,30 +5,30 @@ import static properties.utils.Utils.textoParaReal;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.json.JSONObject;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.jsoup.nodes.TextNode;
 import org.jsoup.select.Elements;
 
 import properties.base.ActionType;
 import properties.base.IProperty;
-import properties.base.RealState;
-import properties.base.RealStateHtml;
 import properties.base.PropertyHtml;
 import properties.base.PropertyType;
+import properties.base.PropertyTypeValues;
+import properties.base.RealState;
+import properties.base.RealStateHtml;
 import properties.excel.Excel;
 import properties.utils.Utils;
 
 public class Caravela extends RealStateHtml {
 
 	private static final String BASEIMOVEL = "http://caravela.imb.br/site/";
-	private static final String URLBASE = "http://caravela.imb.br/site/busca.php?negocio=2&typeimovel=%d&cidade=1039";
+	private static final String SEARCH = BASEIMOVEL + "imoveisbusca.php";
 
 	public Caravela(PropertyType type, ActionType action) {
 		super(type, action);
+		setPost(true);
 	}
 
 	@Override
@@ -38,23 +38,38 @@ public class Caravela extends RealStateHtml {
 
 	@Override
 	public String getUrl() {
-		return String.format(URLBASE, type.equals(PropertyType.Apartment) ? 2 : 3);
+		return SEARCH;
 	}
 
 	@Override
 	public Elements getElements() {
 		Document document = getDocument();
-		return document.select("div.quadro_prod");
+		return document.select("div.col-md-4.vfl_services_grid");
 	}
 
 	@Override
 	public Map<String, String> getPayload() {
-		return new LinkedHashMap<>();
+		LinkedHashMap<String, String> payload = new LinkedHashMap<>();
+		payload.put("tipoimovel", (String) getTypeValues().get(type));
+		payload.put("negocio", ActionType.RENT.equals(action) ? "Locacao" : "Venda");
+		payload.put("cidade", "1039");
+		payload.put("bairro", "undefined");
+		payload.put("valor", "");
+		payload.put("busca", "");
+		return payload;
 	}
 
 	@Override
 	public IProperty newProperty(Element elemento) {
 		return new ImovelImpl(elemento, type);
+	}
+
+	@Override
+	public PropertyTypeValues<?> getTypeValues() {
+		if (typeValues == null) {
+			typeValues = new TypeValues();
+		}
+		return typeValues;
 	}
 
 	private class ImovelImpl extends PropertyHtml {
@@ -71,27 +86,26 @@ public class Caravela extends RealStateHtml {
 
 		@Override
 		public void loadName() {
-			Element dados = elemento.select("span.dados_prod").first();
-			if (dados != null) {
-				List<TextNode> nodes = dados.childNodes().stream().filter(c -> c instanceof TextNode)
-						.map(c -> (TextNode) c).collect(Collectors.toList());
-				setName(String.format("%s - %s", nodes.get(0).text().trim(), nodes.get(1).text().trim()));
-				setDistrict(nodes.get(1).text().replace("Blumenau - ", "").trim());
-				setPriceStr(nodes.get(2).text().replace("R$", "").trim());
-				try {
-					setPrice(textoParaReal(getPriceStr()));
-				} catch (Exception e) {
-					setPrice(0);
-				}
-			}
+			String value = xpath().text("//div[@class=\"col-md-6 agileinfo_about_left\"]/h2[text()]");
+			setName(value);
 		}
 
 		@Override
 		public void loadDistrict() {
+			String value = xpath().text("//p[strong=\"Bairro: \"]/strong/following-sibling::text()[1]");
+			setDistrict(value);
 		}
 
 		@Override
 		public void loadPrice() {
+			String value = xpath().text("//div[@class=\"col-md-6 agileinfo_about_left\"]/h4/span[text()]");
+			value = value.split("R\\$")[1].trim();
+			setPriceStr(value);
+			try {
+				setPrice(textoParaReal(getPriceStr()));
+			} catch (Exception e) {
+				setPrice(0);
+			}
 		}
 
 		@Override
@@ -121,6 +135,21 @@ public class Caravela extends RealStateHtml {
 
 		@Override
 		public void loadAddress() {
+		}
+
+	}
+
+	private class TypeValues extends PropertyTypeValues<String> {
+
+		public TypeValues() {
+			add(PropertyType.Apartment, "Apartamento");
+			add(PropertyType.House, "Casa");
+			add(PropertyType.Ground, "Terreno");
+			add(PropertyType.CommercialHouse, "Sala comercial");
+			add(PropertyType.Shed, "Galpão");
+			add(PropertyType.RuralProperty, "Imóvel Rural");
+			add(PropertyType.Store, "Loja");
+			add(PropertyType.Others, "Outros Imóveis");
 		}
 
 	}

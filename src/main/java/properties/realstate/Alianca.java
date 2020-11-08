@@ -17,10 +17,11 @@ import org.jsoup.select.Elements;
 
 import properties.base.ActionType;
 import properties.base.IProperty;
-import properties.base.RealState;
-import properties.base.RealStateHtml;
 import properties.base.PropertyHtml;
 import properties.base.PropertyType;
+import properties.base.PropertyTypeValues;
+import properties.base.RealState;
+import properties.base.RealStateHtml;
 import properties.excel.Excel;
 import properties.utils.Utils;
 
@@ -87,6 +88,14 @@ public class Alianca extends RealStateHtml {
 	@Override
 	public IProperty newProperty(Element elemento) {
 		return new ImovelImpl(elemento, type);
+	}
+
+	@Override
+	public PropertyTypeValues<?> getTypeValues() {
+		if (typeValues == null) {
+			typeValues = new TypeValues();
+		}
+		return typeValues;
 	}
 
 	private class ImovelImpl extends PropertyHtml {
@@ -196,6 +205,26 @@ public class Alianca extends RealStateHtml {
 		@Override
 		public void loadAdvertiser() {
 			setAdvertiser("Aliança");
+		}
+
+	}
+
+	private class TypeValues extends PropertyTypeValues<Integer> {
+
+		public TypeValues() {
+			add(PropertyType.House, 1);
+			add(PropertyType.Apartment, 2);
+			add(PropertyType.Store, 3);
+			add(PropertyType.TwoStoryhouse, 14);
+			add(PropertyType.CommercialRoom, 16);
+			add(PropertyType.ParkingLot, 19);
+			add(PropertyType.Shed, 20);
+			add(PropertyType.Others, 21);
+			add(PropertyType.Building, 22);
+			add(PropertyType.Studio, 23);
+			add(PropertyType.Ground, 24);
+			add(PropertyType.CommercialHouse, 32);
+
 		}
 
 	}

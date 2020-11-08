@@ -19,13 +19,13 @@ import properties.base.RealState;
 import properties.base.RealStateHtml;
 import properties.base.PropertyHtml;
 import properties.base.PropertyType;
+import properties.base.PropertyTypeValues;
 import properties.excel.Excel;
 import properties.utils.Utils;
 
 public class Abelardo extends RealStateHtml {
 
 	private static final String URLBASE = "https://www.abelardoimoveis.com.br/buscar?tipoNegocio=%s&tipoImovel=%d&cidade=4202404&dormitorios=&suites=&banheiros=&vagas=&valor_min=&valor_max=&bairro=";
-	private static Map<PropertyType, Integer> PropertyTypeValues = new LinkedHashMap<>();
 
 	public Abelardo(PropertyType type, ActionType action) {
 		super(type, action);
@@ -40,7 +40,7 @@ public class Abelardo extends RealStateHtml {
 	@Override
 	public String getUrl() {
 		String actionString = action.equals(ActionType.RENT) ? "alugar" : "comprar";
-		int propertyTypeValue = PropertyTypeValues.getOrDefault(type, 1);
+		int propertyTypeValue = (int) getTypeValues().get(type);
 		return String.format(URLBASE, actionString, propertyTypeValue);
 	}
 
@@ -57,6 +57,14 @@ public class Abelardo extends RealStateHtml {
 	@Override
 	public IProperty newProperty(Element elemento) {
 		return new ImovelImpl(elemento, type);
+	}
+
+	@Override
+	public PropertyTypeValues<?> getTypeValues() {
+		if (typeValues == null) {
+			typeValues = new TypeValues();
+		}
+		return typeValues;
 	}
 
 	private class ImovelImpl extends PropertyHtml {
@@ -144,23 +152,27 @@ public class Abelardo extends RealStateHtml {
 
 	}
 
-	static {
-		PropertyTypeValues.put(PropertyType.Apartment, 1);
-		PropertyTypeValues.put(PropertyType.RuralArea, 29);
-		PropertyTypeValues.put(PropertyType.House, 23);
-		PropertyTypeValues.put(PropertyType.CountryHouse, 17);
-		PropertyTypeValues.put(PropertyType.Roof, 15);
-		PropertyTypeValues.put(PropertyType.Shed, 7);
-		PropertyTypeValues.put(PropertyType.Hotel, 28);
-		PropertyTypeValues.put(PropertyType.Studio, 9);
-		PropertyTypeValues.put(PropertyType.GroundFloorShop, 10);
-		PropertyTypeValues.put(PropertyType.CommercialPoint, 25);
-		PropertyTypeValues.put(PropertyType.Inn, 18);
-		PropertyTypeValues.put(PropertyType.OfficeBuilding, 11);
-		PropertyTypeValues.put(PropertyType.CommercialRoom, 13);
-		PropertyTypeValues.put(PropertyType.SmallFarm, 5);
-		PropertyTypeValues.put(PropertyType.TwoStoryhouse, 16);
-		PropertyTypeValues.put(PropertyType.Ground, 14);
+	private class TypeValues extends PropertyTypeValues<Integer> {
+
+		public TypeValues() {
+			add(PropertyType.Apartment, 1);
+			add(PropertyType.RuralArea, 29);
+			add(PropertyType.House, 23);
+			add(PropertyType.CountryHouse, 17);
+			add(PropertyType.Roof, 15);
+			add(PropertyType.Shed, 7);
+			add(PropertyType.Hotel, 28);
+			add(PropertyType.Studio, 9);
+			add(PropertyType.GroundFloorShop, 10);
+			add(PropertyType.CommercialPoint, 25);
+			add(PropertyType.Inn, 18);
+			add(PropertyType.OfficeBuilding, 11);
+			add(PropertyType.CommercialRoom, 13);
+			add(PropertyType.SmallFarm, 5);
+			add(PropertyType.TwoStoryhouse, 16);
+			add(PropertyType.Ground, 14);
+		}
+
 	}
 
 	public static void main(String[] args) {

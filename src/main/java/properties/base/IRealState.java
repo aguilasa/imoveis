@@ -23,4 +23,6 @@ public interface IRealState {
 	void load();
 
 	String getUrl();
+
+	PropertyTypeValues<?> getTypeValues();
 }

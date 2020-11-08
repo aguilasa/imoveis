@@ -17,6 +17,7 @@ import properties.base.ActionType;
 import properties.base.IProperty;
 import properties.base.PropertyHtml;
 import properties.base.PropertyType;
+import properties.base.PropertyTypeValues;
 import properties.base.RealState;
 import properties.base.RealStateHtml;
 import properties.excel.Excel;
@@ -25,7 +26,7 @@ import properties.utils.Utils;
 public class ACRC extends RealStateHtml {
 
 	private static final String IMOVELBASE = "https://www.acrcimoveis.com.br";
-	private static final String URLBASE = "https://www.acrcimoveis.com.br/alugar/sc/sc/blumenau/%s/ordem-valor/resultado-crescente/quantidade-48/page-%d/";
+	private static final String URLBASE = "https://www.acrcimoveis.com.br/%s/sc/sc/blumenau/%s/ordem-valor/resultado-crescente/quantidade-48/page-%d/";
 
 	public ACRC(PropertyType type, ActionType action) {
 		super(type, action);
@@ -40,8 +41,8 @@ public class ACRC extends RealStateHtml {
 	@Override
 	public String getUrl() {
 		String actionString = action.equals(ActionType.RENT) ? "alugar" : "comprar";
-		int propertyTypeValue = PropertyTypeValues.getOrDefault(type, 1);
-		return String.format(URLBASE, type, page);
+		String propertyTypeValue = (String) getTypeValues().get(type);
+		return String.format(URLBASE, actionString, propertyTypeValue, page);
 	}
 
 	@Override
@@ -63,6 +64,14 @@ public class ACRC extends RealStateHtml {
 	@Override
 	public IProperty newProperty(Element elemento) {
 		return new ImovelImpl(elemento, type);
+	}
+
+	@Override
+	public PropertyTypeValues<?> getTypeValues() {
+		if (typeValues == null) {
+			typeValues = new TypeValues();
+		}
+		return typeValues;
 	}
 
 	private class ImovelImpl extends PropertyHtml {
@@ -98,6 +107,7 @@ public class ACRC extends RealStateHtml {
 		public void loadDistrict() {
 			String value = xpath().text("//h2[@class=\"cidade_bairro\"][text()]");
 			value = value.replace("BLUMENAU, SC - ", "");
+			value = value.replace("Blumenau, SC - ", "");
 			setDistrict(value);
 		}
 
@@ -149,6 +159,26 @@ public class ACRC extends RealStateHtml {
 		@Override
 		public void loadAdvertiser() {
 			setAdvertiser("ACRC");
+		}
+
+	}
+
+	private class TypeValues extends PropertyTypeValues<String> {
+
+		public TypeValues() {
+			add(PropertyType.Apartment, "APARTAMENTO");
+			add(PropertyType.House, "CASA");
+			add(PropertyType.Room, "SALA");
+			add(PropertyType.Shed, "GALPAO");
+			add(PropertyType.Hotel, "HOTEL");
+			add(PropertyType.Studio, "KITNET");
+			add(PropertyType.SmallFarm, "SITIO");
+			add(PropertyType.ParkingSpace, "VAGA");
+			add(PropertyType.Ground, "TERRENO");
+			add(PropertyType.Building, "PRÉDIO");
+			add(PropertyType.Point, "PONTO");
+			add(PropertyType.Store, "LOJA");
+			add(PropertyType.Farm, "FAZENDA");
 		}
 
 	}
