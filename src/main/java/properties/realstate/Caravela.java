@@ -6,6 +6,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.math.NumberUtils;
 import org.json.JSONObject;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -110,6 +111,10 @@ public class Caravela extends RealStateHtml {
 
 		@Override
 		public void loadRooms() {
+			String valor = getMapValues().getOrDefault("Quarto(s):", "0");
+			if (NumberUtils.isCreatable(valor)) {
+				setRooms(Integer.valueOf(valor));
+			}
 		}
 
 		@Override
@@ -137,6 +142,24 @@ public class Caravela extends RealStateHtml {
 		public void loadAddress() {
 		}
 
+		private boolean mapLoaded = false;
+		private Map<String, String> mapValues = new LinkedHashMap<>();
+
+		private Map<String, String> getMapValues() {
+			if (!mapLoaded) {
+				List<String> keys = xpath().list("//p[strong=\"Observações:\"]/strong/following-sibling::text()");
+				List<String> values = xpath().list("//p[strong=\"Observações:\"]/strong/following-sibling::strong[text()]");
+				if (!keys.isEmpty() && keys.size() == values.size()) {
+					for (int i = 0; i < keys.size(); i++) {
+						String key = keys.get(i).trim();
+						String value = values.get(i).trim();
+						mapValues.put(key, value);
+					}
+				}
+				mapLoaded = true;
+			}
+			return mapValues;
+		}
 	}
 
 	private class TypeValues extends PropertyTypeValues<String> {

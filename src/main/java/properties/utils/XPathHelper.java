@@ -11,6 +11,7 @@ import javax.xml.xpath.XPathFactory;
 
 import org.jsoup.helper.StringUtil;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 public class XPathHelper {
@@ -36,7 +37,11 @@ public class XPathHelper {
 		try {
 			nodes = (NodeList) xPath.evaluate(expression, doc.getDocumentElement(), XPathConstants.NODESET);
 			for (int i = 0; i < nodes.getLength(); ++i) {
-				String value = nodes.item(i).getNodeValue().trim();
+				Node nodeItem = nodes.item(i);
+				if (nodeItem instanceof com.sun.org.apache.xerces.internal.dom.ElementNSImpl) {
+					
+				}
+				String value = nodeItem.getNodeValue().trim();
 				if (!addEmpty && StringUtil.isBlank(value)) {
 					continue;
 				}
