@@ -11,7 +11,7 @@ import org.jsoup.nodes.Document;
 public class JSoupUtils {
 
 	public static Connection getConnection(String url, String proxy) {
-		Connection connection = Jsoup.connect(url).timeout(300000);
+		Connection connection = Jsoup.connect(url).timeout(300000).validateTLSCertificates(false);
 		if (!StringUtil.isBlank(proxy)) {
 			String[] split = proxy.split(":");
 			String host = split.length == 3 ? split[0].concat(":").concat(split[1]) : split[0];

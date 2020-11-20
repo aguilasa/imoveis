@@ -42,7 +42,8 @@ public abstract class RealStateHtml extends RealState {
 
 	public Document getDocument(String url) {
 		try {
-			Connection data = Jsoup.connect(url).timeout(0).userAgent(USER_AGENT).data(getPayload());
+			Connection data = Jsoup.connect(url).timeout(0).userAgent(USER_AGENT).data(getPayload())
+					.validateTLSCertificates(false);
 			return post ? data.post() : data.get();
 		} catch (IOException e) {
 			return new Document("");
