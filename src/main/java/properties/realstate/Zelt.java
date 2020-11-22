@@ -14,183 +14,184 @@ import org.jsoup.select.Elements;
 
 import properties.base.ActionType;
 import properties.base.IProperty;
-import properties.base.RealState;
-import properties.base.RealStateHtml;
 import properties.base.PropertyHtml;
 import properties.base.PropertyType;
+import properties.base.PropertyTypeValues;
+import properties.base.RealState;
+import properties.base.RealStateHtml;
 import properties.excel.Excel;
 import properties.utils.Utils;
 
 public class Zelt extends RealStateHtml {
 
-    private static final String IMOVELBASE = "http://www.zelt.com.br";
-    private static final String URLBASE = "http://www.zelt.com.br/public/search";
+	private static final String IMOVELBASE = "http://www.zelt.com.br";
+	private static final String URLBASE = "https://www.zelt.com.br/imoveis/%s/%s/blumenau";
 
-    public Zelt(PropertyType type, ActionType action) {
-        super(type, action);
-    }
+	public Zelt(PropertyType type, ActionType action) {
+		super(type, action);
+	}
 
-    @Override
-    public int getPages() {
-        Document document = getDocument();
-        Elements dados = document.select("nav.swt-pagetion");
-        if (!dados.isEmpty()) {
-            int p = 0;
-            Elements pages = dados.first().select("li.swt-pagetion__item a");
-            for (Element page : pages) {
-                String valor = page.text().trim();
-                if (NumberUtils.isCreatable(valor)) {
-                    p = Integer.valueOf(valor);
-                }
-            }
-            return p;
-        }
-        return 1;
-    }
+	@Override
+	public int getPages() {
+		Document document = getDocument();
+		int p = 1;
+		Elements pages = document.select("div.pagination-buttons a");
+		for (Element page : pages) {
+			String valor = page.text().trim();
+			if (NumberUtils.isCreatable(valor)) {
+				p = Integer.valueOf(valor);
+			}
+		}
+		return p;
+	}
 
-    @Override
-    public String getUrl() {
-        return URLBASE;
-    }
+	@Override
+	public String getUrl() {
+		String actionString = action.equals(ActionType.RENT) ? "para-alugar" : "a-venda";
+		String propertyTypeValue = (String) getTypeValues().get(type);
+		return String.format(URLBASE, actionString, propertyTypeValue, page);
 
-    @Override
-    public Elements getElements() {
-        Document document = getDocument();
-        return document.select("div.swt-realty-preview.swt-realty-preview--search-list");
-    }
+	}
 
-    @Override
-    public Map<String, String> getPayload() {
-        LinkedHashMap<String, String> payload = new LinkedHashMap<>();
-        payload.put("type", type.equals(PropertyType.Apartment) ? "1" : "2");
-        payload.put("cidade", "8377");
-        payload.put("goalId", "1");
-        payload.put("viewMap", "");
-        payload.put("max", "12");
-        payload.put("bairro", "");
-        payload.put("preco_ate", "0");
-        payload.put("uf", "SC");
-        payload.put("ref", "");
-        payload.put("area_de", "0");
-        payload.put("area_ate", "0");
-        payload.put("sortOrder", "desc");
-        payload.put("tag", "");
-        payload.put("preco_de", "0");
-        payload.put("fullSearch", "true");
-        payload.put("openSearch", "");
-        payload.put("offset", String.valueOf((page - 1) * 12));
-        return payload;
-    }
+	@Override
+	public Elements getElements() {
+		Document document = getDocument();
+		return document.select("div.card.card-listing");
+	}
 
-    @Override
-    public IProperty newProperty(Element elemento) {
-        return new ImovelImpl(elemento, type);
-    }
+	@Override
+	public Map<String, String> getPayload() {
+		LinkedHashMap<String, String> payload = new LinkedHashMap<>();
+		payload.put("pagina", String.valueOf(page));
+		return payload;
+	}
 
-    private class ImovelImpl extends PropertyHtml {
+	@Override
+	public IProperty newProperty(Element elemento) {
+		return new ImovelImpl(elemento, type);
+	}
 
-        public ImovelImpl(Element elemento, PropertyType type) {
-            super(elemento, type);
-        }
+	@Override
+	public PropertyTypeValues<?> getTypeValues() {
+		if (typeValues == null) {
+			typeValues = new TypeValues();
+		}
+		return typeValues;
+	}
 
-        @Override
-        public void loadUrl() {
-            Element link = elemento.select("a").first();
-            setUrl(IMOVELBASE.concat(link.attr("href")));
-        }
+	private class ImovelImpl extends PropertyHtml {
 
-        @Override
-        public void loadName() {
-            String texto1 = elemento.select("p.swt-realty-preview__sub-heading.swt-color-text--1.swt-size-text--5").first().text().trim();
-            String texto2 = elemento.select("h3.swt-realty-preview__heading.swt-size-text--3").first().text().trim();
-            setName(String.format("%s - %s", texto1, texto2));
-        }
+		public ImovelImpl(Element elemento, PropertyType type) {
+			super(elemento, type);
+		}
 
-        @Override
-        public void loadDistrict() {
-            setDistrict(elemento.select("h3.swt-realty-preview__heading.swt-size-text--3").first().text().replace("(Blumenau - SC)", "").trim());
-        }
+		@Override
+		public void loadUrl() {
+			Element link = elemento.select("a").first();
+			setUrl(IMOVELBASE.concat(link.attr("href")));
+		}
 
-        @Override
-        public void loadPrice() {
-            Elements dados = elemento.select("dd.swt-price__value");
-            setPriceStr(dados.last().text().trim());
-            try {
-                setPrice(textoParaReal(getPriceStr().replace("R$", "")));
-            } catch (Exception e) {
-                setPrice(0);
-            }
-        }
+		@Override
+		public void loadName() {
+			String texto1 = elemento.select("h2.card-title").first().text().trim();
+			String texto2 = elemento.select("h3.card-text").first().text().trim();
+			setName(String.format("%s - %s", texto1, texto2));
+		}
 
-        @Override
-        public void loadRooms() {
-            Elements dados = elemento.select("li.swt-realty-features__item.swt-realty-preview__feature");
-            for (Element dado : dados) {
-                String texto = dado.text().trim();
-                String[] quebrado = texto.split(" ");
-                if (texto.contains("dormi")) {
-                    setRooms(Integer.valueOf(quebrado[0].trim()));
-                    if (texto.contains("su�te")) {
-                        for (int i = 1; i < quebrado.length; i++) {
-                            if (NumberUtils.isCreatable(quebrado[i].trim())) {
-                                setSuites(Integer.valueOf(quebrado[i].trim()));
-                            }
-                        }
-                    }
-                } else if (texto.contains("vaga")) {
-                    setParkingSpaces(Integer.valueOf(quebrado[0].trim()));
-                } else if (texto.contains("�til")) {
-                    setArea(Double.valueOf(quebrado[0].trim().replace(".", "").replace(",", ".")));
-                }
-            }
-        }
+		@Override
+		public void loadDistrict() {
+			setDistrict(elemento.select("h2.card-title").first().text().trim());
+		}
 
-        @Override
-        public void loadParkingSpaces() {
-        }
+		@Override
+		public void loadPrice() {
+			Elements dados = elemento.select("span.h-money.location");
+			setPriceStr(dados.last().text().trim());
+			try {
+				setPrice(textoParaReal(getPriceStr().replace("R$", "")));
+			} catch (Exception e) {
+				setPrice(0);
+			}
+		}
 
-        @Override
-        public void loadSuites() {
-        }
+		@Override
+		public void loadRooms() {
+			Elements dados = elemento.select("div.values div.value p");
+			for (Element dado : dados) {
+				String texto = dado.text().trim();
+				String[] quebrado = texto.split(" ");
+				if (texto.contains("quarto")) {
+					setRooms(Integer.valueOf(quebrado[0].trim()));
+				} else if (texto.contains("suíte")) {
+					setSuites(Integer.valueOf(quebrado[0].trim()));
+				} else if (texto.contains("vaga")) {
+					setParkingSpaces(Integer.valueOf(quebrado[0].trim()));
+				} else if (texto.contains("m²")) {
+					setArea(Double.valueOf(quebrado[0].trim().replace(".", "").replace(",", ".")));
+				}
+			}
+		}
 
-        @Override
-        public void loadArea() {
-        }
+		@Override
+		public void loadParkingSpaces() {
+		}
 
-        @Override
-        public void loadAdvertiser() {
-            setAdvertiser("Zelt");
-        }
+		@Override
+		public void loadSuites() {
+		}
 
-        @Override
-        public void loadCondominium() {
-            Document documento = getDocumento();
-            Elements dados = documento.select("li.swt-realty-features__item.swt-realty-details__feature");
-            for (Element dado : dados) {
-                String valor = dado.text().toUpperCase().trim();
-                if (valor.contains("CONDOM")) {
-                    String[] quebrado = valor.split("R\\$");
-                    valor = quebrado[1].trim();
-                    setCondominium(textoParaReal(valor));
-                }
-            }
-        }
+		@Override
+		public void loadArea() {
+		}
 
-        @Override
-        public void loadAddress() {
-        }
+		@Override
+		public void loadAdvertiser() {
+			setAdvertiser("Zelt");
+		}
 
-    }
+		@Override
+		public void loadCondominium() {
+			Elements dados = elemento.select("div.info-right.text-xs-right p span.h-money");
+			for (Element dado : dados) {
+				String texto = dado.text().trim();
+				if (texto.toLowerCase().contains("condom")) {
+					String[] quebrado = texto.split("R\\$");
+					texto = quebrado[1].trim();
+					setCondominium(textoParaReal(texto));
+					break;
+				}
+			}
+		}
 
-    public static void main(String[] args) {
-        RealState imobiliaria = new Zelt(PropertyType.House, ActionType.RENT);
-        List<IProperty> imos = imobiliaria.getProperties();
-        Excel.getInstance().clear();
-        for (IProperty imo : imos) {
-            Excel.getInstance().addImovel(imo);
-            JSONObject json = Utils.imovelToJson(imo);
-            System.out.println(json.toString());
-        }
-        Excel.getInstance().gerar();
-    }
+		@Override
+		public void loadAddress() {
+		}
+
+	}
+
+	private class TypeValues extends PropertyTypeValues<String> {
+
+		public TypeValues() {
+			add(PropertyType.House, "casa");
+			add(PropertyType.Apartment, "apartamento");
+			add(PropertyType.Shed, "galpao");
+			add(PropertyType.Store, "loja");
+			add(PropertyType.Building, "predio");
+			add(PropertyType.Ground, "terreno");
+			add(PropertyType.Room, "sala");
+		}
+
+	}
+
+	public static void main(String[] args) {
+		RealState imobiliaria = new Zelt(PropertyType.Apartment, ActionType.RENT);
+		List<IProperty> imos = imobiliaria.getProperties();
+		Excel.getInstance().clear();
+		for (IProperty imo : imos) {
+			Excel.getInstance().addImovel(imo);
+			JSONObject json = Utils.imovelToJson(imo);
+			System.out.println(json.toString());
+		}
+		Excel.getInstance().gerar();
+	}
 }

@@ -46,6 +46,7 @@ public abstract class RealStateHtml extends RealState {
 					.validateTLSCertificates(false);
 			return post ? data.post() : data.get();
 		} catch (IOException e) {
+			e.printStackTrace();
 			return new Document("");
 		}
 	}

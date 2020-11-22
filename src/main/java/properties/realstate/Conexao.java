@@ -94,8 +94,8 @@ public class Conexao extends RealStateHtml {
 
 		@Override
 		public void loadPrice() {
-			setPriceStr(elemento.select("div.imovel-item-preco").first().text().replace("Loca��o:", "")
-					.replace("R$", "").trim());
+			String value = xpath().text("//div[strong=\"Locação\"]/strong/following-sibling::text()").trim();
+			setPriceStr(value.replace(":", "").replace("R$", "").trim());
 			try {
 				setPrice(textoParaReal(getPriceStr()));
 			} catch (Exception e) {
@@ -112,29 +112,25 @@ public class Conexao extends RealStateHtml {
 		@Override
 		public void loadRooms() {
 			Document documento = getDocumento();
-			Elements dados = documento.select("div.imovel-detalhe-conteudo-texto p");
-			if (dados.size() == 2) {
-				Element last = dados.last();
-				String[] linhas = last.text().toUpperCase().split("�");
-				for (String linha : linhas) {
-					linha = linha.trim();
-					if (linha.length() > 1) {
-						String[] quebrado = linha.split(" ");
-						if (linha.contains("DORMITÓRIO")) {
-							setRooms(Integer.valueOf(quebrado[0].trim()));
-							if (linha.contains("SUÍTE")) {
-								int i = 0;
-								for (String valor : quebrado) {
-									if (valor.contains("SUÍTE")) {
-										setSuites(Integer.valueOf(quebrado[i - 1].trim()));
-									}
-									i++;
-								}
+			Elements dados = documento.select("ul.imovel-detalhe-lista li");
+			for (Element e : dados) {
+				String linha = e.text().toUpperCase().trim();
+				if (linha.length() > 1) {
+					String[] quebrado = linha.split(" ");
+					if (linha.contains("DORMITÓRIO")) {
+						setRooms(Integer.valueOf(quebrado[0].trim()));
+					}
+					if (linha.contains("SUÍTE")) {
+						int i = 0;
+						for (String valor : quebrado) {
+							if (valor.contains("SUÍTE")) {
+								setSuites(Integer.valueOf(quebrado[i - 1].trim()));
 							}
+							i++;
 						}
-						if (linha.contains("GARAGE")) {
-							setParkingSpaces(Integer.valueOf(quebrado[0].trim()));
-						}
+					}
+					if (linha.contains("GARAGE")) {
+						setParkingSpaces(Integer.valueOf(quebrado[0].trim()));
 					}
 				}
 			}
@@ -195,7 +191,7 @@ public class Conexao extends RealStateHtml {
 	}
 
 	public static void main(String[] args) {
-		RealState imobiliaria = new Conexao(PropertyType.Apartment, ActionType.RENT);
+		RealState imobiliaria = new Conexao(PropertyType.House, ActionType.RENT);
 		List<IProperty> imos = imobiliaria.getProperties();
 		Excel.getInstance().clear();
 		for (IProperty imo : imos) {

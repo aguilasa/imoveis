@@ -148,7 +148,7 @@ public class Caravela extends RealStateHtml {
 		private Map<String, String> getMapValues() {
 			if (!mapLoaded) {
 				List<String> keys = xpath().list("//p[strong=\"Observações:\"]/strong/following-sibling::text()");
-				List<String> values = xpath().list("//p[strong=\"Observações:\"]/strong/following-sibling::strong[text()]");
+				List<String> values = xpath().list("//p[strong=\"Observações:\"]/strong/following-sibling::strong");
 				if (!keys.isEmpty() && keys.size() == values.size()) {
 					for (int i = 0; i < keys.size(); i++) {
 						String key = keys.get(i).trim();

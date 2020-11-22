@@ -31,7 +31,8 @@ public abstract class PropertyHtml extends Property {
 	protected Document getDocumento() {
 		if (documento == null) {
 			try {
-				documento = Jsoup.connect(getUrl()).timeout(0).userAgent(USER_AGENT).get();
+				documento = Jsoup.connect(getUrl()).timeout(0).userAgent(USER_AGENT).validateTLSCertificates(false)
+						.get();
 			} catch (IOException e) {
 				documento = new Document("");
 			}

@@ -13,6 +13,7 @@ import org.jsoup.helper.StringUtil;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+//import com.sun.org.apache.xerces.internal.dom.ElementNSImpl;
 
 public class XPathHelper {
 
@@ -38,10 +39,13 @@ public class XPathHelper {
 			nodes = (NodeList) xPath.evaluate(expression, doc.getDocumentElement(), XPathConstants.NODESET);
 			for (int i = 0; i < nodes.getLength(); ++i) {
 				Node nodeItem = nodes.item(i);
-				if (nodeItem instanceof com.sun.org.apache.xerces.internal.dom.ElementNSImpl) {
-					
-				}
-				String value = nodeItem.getNodeValue().trim();
+//				if (nodeItem instanceof ElementNSImpl) {
+//					ElementNSImpl el = (ElementNSImpl) nodeItem;
+//
+//					System.out.println(el);
+//				}
+				String value = nodeItem.getNodeValue() != null ? nodeItem.getNodeValue().trim()
+						: nodeItem.getFirstChild().getNodeValue().trim();
 				if (!addEmpty && StringUtil.isBlank(value)) {
 					continue;
 				}
