@@ -9,7 +9,6 @@ public abstract class Property implements IProperty {
 	@Setter
 	private String name;
 	@Getter
-	@Setter
 	private String url;
 	@Getter
 	@Setter
@@ -58,5 +57,9 @@ public abstract class Property implements IProperty {
 		loadAdvertiser();
 		loadCondominium();
 		loadAddress();
+	}
+	
+	public void setUrl(String url) {
+		this.url = url.replaceAll("\\r*\\n", "");
 	}
 }

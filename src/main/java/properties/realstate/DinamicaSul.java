@@ -1,61 +1,51 @@
 package properties.realstate;
 
-import static properties.utils.Utils.extrairValor;
+import static properties.utils.Utils.buscarCondominio;
 import static properties.utils.Utils.textoParaReal;
 
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang3.math.NumberUtils;
 import org.json.JSONObject;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.jsoup.nodes.Node;
-import org.jsoup.nodes.TextNode;
 import org.jsoup.select.Elements;
 
 import properties.base.ActionType;
 import properties.base.IProperty;
-import properties.base.RealState;
-import properties.base.RealStateHtml;
 import properties.base.PropertyHtml;
 import properties.base.PropertyType;
 import properties.base.PropertyTypeValues;
+import properties.base.RealState;
+import properties.base.RealStateHtml;
 import properties.excel.Excel;
 import properties.utils.Utils;
 
 public class DinamicaSul extends RealStateHtml {
 
-	private static final String URLBASE = "http://www.dinamicasul.com.br/imoveis/blumenau/quero-alugar/%s/page%d";
+	private static final String URLBASE = "https://www.dinamicasul.com.br/buscar?tipoNegocio=%s&tipoImovel=%d&cidade=4202404&dormitorios=&vagas=&valor_min=&valor_max=&bairro=&pagina=24x1&suites=&banheiros=";
 
 	public DinamicaSul(PropertyType type, ActionType action) {
 		super(type, action);
 	}
 
 	@Override
-	public int getPages() {
-		Document document = getDocument();
-		int p = 1;
-		Elements pages = document.select("ul.pagetion.pagetion-sm li");
-		for (Element page : pages) {
-			String valor = page.text().trim();
-			if (NumberUtils.isCreatable(valor)) {
-				p = Integer.valueOf(valor);
-			}
-		}
-		return p;
+	public Elements getElements() {
+		Document document = getDocument(getUrl());
+		return document.select("div.os_property-main");
 	}
 
 	@Override
 	public String getUrl() {
-		return String.format(URLBASE, type, page);
+		String actionString = action.equals(ActionType.RENT) ? "alugar" : "comprar";
+		int propertyTypeValue = (int) getTypeValues().get(type);
+		return String.format(URLBASE, actionString, propertyTypeValue);
 	}
 
 	@Override
-	public Elements getElements() {
-		Document document = getDocument();
-		return document.select("article.imovel");
+	public int getPages() {
+		return 1;
 	}
 
 	@Override
@@ -67,7 +57,7 @@ public class DinamicaSul extends RealStateHtml {
 	public IProperty newProperty(Element elemento) {
 		return new ImovelImpl(elemento, type);
 	}
-	
+
 	@Override
 	public PropertyTypeValues<?> getTypeValues() {
 		if (typeValues == null) {
@@ -84,116 +74,109 @@ public class DinamicaSul extends RealStateHtml {
 
 		@Override
 		public void loadUrl() {
-			Element link = elemento.select("a").first();
-			setUrl(link.attr("href"));
-			setName(link.attr("title"));
+			String link = elemento.select("a").first().attr("href");
+			link = link.replaceAll("\r*\n", "");
+			setUrl(link);
 		}
 
 		@Override
 		public void loadName() {
-		}
-
-		@Override
-		public void loadDistrict() {
-			setDistrict(elemento.select("p.bairro").first().text().replace("Bairro", "").trim());
+			String value = xpath().text("//span[@class=\"title-product\"]");
+			setName(value);
 		}
 
 		@Override
 		public void loadPrice() {
-			setPriceStr(elemento.select("p.valor").last().text().trim());
+			String value = xpath().text("//p[@class=\"uk-h3 status-price\"]").trim();
+			setPriceStr(value.replace("R$", ""));
 			try {
-				setPrice(extrairValor(getPriceStr()));
+				setPrice(textoParaReal(getPriceStr()));
 			} catch (Exception e) {
 				setPrice(0);
 			}
 		}
 
 		@Override
+		public void loadDistrict() {
+			String value = getName().split("Bairro ")[1].trim();
+			setDistrict(value);
+		}
+
+		@Override
 		public void loadRooms() {
-			Elements dados = getDocumento().select("div.extras.dormitorios span.un");
-			if (!dados.isEmpty()) {
-				String texto = dados.first().text().trim();
-				setRooms(Integer.valueOf(texto));
-			}
-		}
-
-		@Override
-		public void loadParkingSpaces() {
-			Elements dados = getDocumento().select("div.extras.garagens span.un");
-			if (!dados.isEmpty()) {
-				String texto = dados.first().text().trim();
-				setParkingSpaces(Integer.valueOf(texto));
-			}
-		}
-
-		@Override
-		public void loadSuites() {
-			Elements dados = getDocumento().select("div.extras.suites span.un");
-			if (!dados.isEmpty()) {
-				String texto = dados.first().text().trim();
-				setSuites(Integer.valueOf(texto));
-			}
-		}
-
-		@Override
-		public void loadArea() {
-			Elements dados = getDocumento().select("div.extras.areaprivativa span.un");
-			if (!dados.isEmpty()) {
-				String texto = dados.first().text().replace("m�", "").trim();
-				setArea(textoParaReal(texto));
-			}
-		}
-
-		@Override
-		public void loadAdvertiser() {
-			setAdvertiser("Din�mica Sul");
-		}
-
-		@Override
-		public void loadCondominium() {
-			Element dado = getDocumento().select("div#conteudoImovel").first();
-			if (dado != null) {
-				List<Node> nodes = dado.childNodes();
-				for (Node node : nodes) {
-					if (node instanceof TextNode) {
-						TextNode textNode = (TextNode) node;
-						String texto = textNode.text();
-						if (texto.toUpperCase().contains("CONDOM")) {
-							setCondominium(extrairValor(texto));
-							if (getCondominium() > 0) {
-								break;
-							}
-						}
+			Document documento = getDocumento();
+			Elements dados = documento.select("li.uk-active div.uk-grid div.caracteristicas p");
+			for (Element e : dados) {
+				String linha = e.text().toUpperCase().trim();
+				if (linha.length() > 1) {
+					String[] quebrado = linha.split(" ");
+					if (linha.contains("DORMITÓRIO")) {
+						setRooms(Integer.valueOf(quebrado[1].trim()));
+					} else if (linha.contains("SUÍTE")) {
+						setSuites(Integer.valueOf(quebrado[1].trim()));
+					} else if (linha.contains("VAGA")) {
+						setParkingSpaces(Integer.valueOf(quebrado[1].trim()));
+					} else if (linha.contains("ÁREA ÚTIL")) {
+						setArea(textoParaReal(quebrado[2].trim()));
 					}
 				}
 			}
 		}
 
 		@Override
+		public void loadParkingSpaces() {
+		}
+
+		@Override
+		public void loadSuites() {
+		}
+
+		@Override
+		public void loadArea() {
+		}
+
+		@Override
+		public void loadCondominium() {
+			String value = xpath().text("//li[strong=\"Valor Condomínio:\"]/span[text()]");
+			setCondominium(buscarCondominio(value));
+		}
+
+		@Override
 		public void loadAddress() {
 		}
 
+		@Override
+		public void loadAdvertiser() {
+			setAdvertiser("DinamicaSul");
+		}
+
 	}
-	
-	private class TypeValues extends PropertyTypeValues<String> {
+
+	private class TypeValues extends PropertyTypeValues<Integer> {
 
 		public TypeValues() {
-			add(PropertyType.House, "1");
-			add(PropertyType.Apartment, "2");
-			add(PropertyType.Ground, "3");
-			add(PropertyType.CommercialRoom, "4");
-			add(PropertyType.Roof, "5");
-			add(PropertyType.GroundFloorShop, "6");
-			add(PropertyType.OfficeBuilding, "7");
-			add(PropertyType.CountryHouse, "8");
-			add(PropertyType.Shed, "9");
-			add(PropertyType.TwoStoryhouse, "10");
+			add(PropertyType.Apartment, 1);
+			add(PropertyType.RuralArea, 29);
+			add(PropertyType.House, 23);
+			add(PropertyType.CountryHouse, 17);
+			add(PropertyType.Roof, 15);
+			add(PropertyType.Shed, 7);
+			add(PropertyType.Hotel, 28);
+			add(PropertyType.Studio, 9);
+			add(PropertyType.GroundFloorShop, 10);
+			add(PropertyType.CommercialPoint, 25);
+			add(PropertyType.Inn, 18);
+			add(PropertyType.OfficeBuilding, 11);
+			add(PropertyType.CommercialRoom, 13);
+			add(PropertyType.SmallFarm, 5);
+			add(PropertyType.TwoStoryhouse, 16);
+			add(PropertyType.Ground, 14);
 		}
 
 	}
 
 	public static void main(String[] args) {
-		RealState imobiliaria = new DinamicaSul(PropertyType.House, ActionType.RENT);
+		RealState imobiliaria = new DinamicaSul(PropertyType.Apartment, ActionType.RENT);
 		List<IProperty> imos = imobiliaria.getProperties();
 		Excel.getInstance().clear();
 		for (IProperty imo : imos) {
