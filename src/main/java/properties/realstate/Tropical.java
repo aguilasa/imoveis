@@ -14,49 +14,56 @@ import org.jsoup.select.Elements;
 
 import properties.base.ActionType;
 import properties.base.IProperty;
-import properties.base.RealState;
-import properties.base.RealStateHtml;
 import properties.base.PropertyHtml;
 import properties.base.PropertyType;
 import properties.base.PropertyTypeValues;
+import properties.base.RealState;
+import properties.base.RealStateHtml;
 import properties.excel.Excel;
 import properties.utils.Utils;
 
 public class Tropical extends RealStateHtml {
 
 	private static final String IMOVELBASE = "http://www.tropical.imb.br";
-	private static final String URLBASE = "http://www.tropical.imb.br/imoveis/para-alugar/%s?page=%d";
+	private static final String URLBASE = "https://www.tropical.imb.br/imoveis/%s/%s/blumenau";
 
 	public Tropical(PropertyType type, ActionType action) {
 		super(type, action);
 	}
 
 	@Override
-	public Elements getElements() {
-		Document document = getDocument(getUrl());
-		return document.select("div.card.card-listing");
+	public int getPages() {
+		Document document = getDocument();
+		int p = 1;
+		Elements pages = document.select("div.pagination-buttons a");
+		for (Element page : pages) {
+			String valor = page.text().trim();
+			if (NumberUtils.isCreatable(valor)) {
+				p = Integer.valueOf(valor);
+			}
+		}
+		return p;
 	}
 
 	@Override
 	public String getUrl() {
-		return String.format(URLBASE, type, page);
+		String actionString = action.equals(ActionType.RENT) ? "para-alugar" : "a-venda";
+		String propertyTypeValue = (String) getTypeValues().get(type);
+		return String.format(URLBASE, actionString, propertyTypeValue, page);
+
 	}
 
 	@Override
-	public int getPages() {
+	public Elements getElements() {
 		Document document = getDocument();
-		Elements pages = document.select("div.pagetion-cell p");
-		if (!pages.isEmpty()) {
-			String valor = pages.first().text();
-			String[] separado = valor.split("de");
-			return Integer.valueOf(separado[1].trim());
-		}
-		return 1;
+		return document.select("div.card.card-listing");
 	}
 
 	@Override
 	public Map<String, String> getPayload() {
-		return new LinkedHashMap<>();
+		LinkedHashMap<String, String> payload = new LinkedHashMap<>();
+		payload.put("pagina", String.valueOf(page));
+		return payload;
 	}
 
 	@Override
@@ -86,14 +93,14 @@ public class Tropical extends RealStateHtml {
 
 		@Override
 		public void loadName() {
-			String texto1 = elemento.select("h2.card-title").first().text();
-			String texto2 = elemento.select("h3.card-text").first().text();
-			setName(String.format("%s - %s", texto2, texto1));
+			String texto1 = elemento.select("h2.card-title").first().text().trim();
+			String texto2 = elemento.select("h3.card-text").first().text().trim();
+			setName(String.format("%s - %s", texto1, texto2));
 		}
 
 		@Override
 		public void loadDistrict() {
-			setDistrict(elemento.select("h2.card-title").first().text());
+			setDistrict(elemento.select("h2.card-title").first().text().trim());
 		}
 
 		@Override
@@ -109,18 +116,18 @@ public class Tropical extends RealStateHtml {
 
 		@Override
 		public void loadRooms() {
-			Elements dados = elemento.select("div.values div.value");
+			Elements dados = elemento.select("div.values div.value p");
 			for (Element dado : dados) {
 				String texto = dado.text().trim();
-				String valor = dado.select("span.h-money").first().text();
-				if (texto.contains("dorms")) {
-					setRooms(Integer.valueOf(valor));
+				String[] quebrado = texto.split(" ");
+				if (texto.contains("quarto")) {
+					setRooms(Integer.valueOf(quebrado[0].trim()));
+				} else if (texto.contains("suíte")) {
+					setSuites(Integer.valueOf(quebrado[0].trim()));
 				} else if (texto.contains("vaga")) {
-					setParkingSpaces(Integer.valueOf(valor));
-				} else if (texto.contains("su�te")) {
-					setSuites(Integer.valueOf(valor));
-				} else if (texto.contains("m�")) {
-					setArea(Double.valueOf(valor.replace(".", "").replace(",", ".")));
+					setParkingSpaces(Integer.valueOf(quebrado[0].trim()));
+				} else if (texto.contains("m²")) {
+					setArea(Double.valueOf(quebrado[0].trim().replace(".", "").replace(",", ".")));
 				}
 			}
 		}
@@ -146,12 +153,12 @@ public class Tropical extends RealStateHtml {
 		public void loadCondominium() {
 			Elements dados = elemento.select("div.info-right.text-xs-right p span.h-money");
 			for (Element dado : dados) {
-				String valor = dado.text().toUpperCase().trim();
-				if (valor.contains("CONDOM�NIO")) {
-					valor = valor.replace("CONDOM�NIO", "").replace("R$", "").replace(".", "").replace(",", ".").trim();
-					if (NumberUtils.isCreatable(valor)) {
-						setCondominium(Double.valueOf(valor));
-					}
+				String texto = dado.text().trim();
+				if (texto.toLowerCase().contains("condom")) {
+					String[] quebrado = texto.split("R\\$");
+					texto = quebrado[1].trim();
+					setCondominium(textoParaReal(texto));
+					break;
 				}
 			}
 		}
@@ -165,16 +172,21 @@ public class Tropical extends RealStateHtml {
 	private class TypeValues extends PropertyTypeValues<String> {
 
 		public TypeValues() {
-			add(PropertyType.House, "1");
-			add(PropertyType.Apartment, "2");
-			add(PropertyType.Ground, "3");
-			add(PropertyType.CommercialRoom, "4");
-			add(PropertyType.Roof, "5");
-			add(PropertyType.GroundFloorShop, "6");
-			add(PropertyType.OfficeBuilding, "7");
-			add(PropertyType.CountryHouse, "8");
-			add(PropertyType.Shed, "9");
-			add(PropertyType.TwoStoryhouse, "10");
+			add(PropertyType.House, "casa");
+			add(PropertyType.Apartment, "apartamento");
+			add(PropertyType.Shed, "galpao");
+			add(PropertyType.Store, "loja");
+			add(PropertyType.Building, "predio");
+			add(PropertyType.Ground, "terreno");
+			add(PropertyType.Room, "sala");
+			add(PropertyType.CountryHouse, "chacara");
+			add(PropertyType.Roof, "cobertura");
+			add(PropertyType.Set, "conjunto");
+			add(PropertyType.Point, "ponto");
+			add(PropertyType.TwoStoryhouse, "sobrado");
+			add(PropertyType.SmallFarm, "sitio");
+			add(PropertyType.Area, "area");
+			add(PropertyType.Studio, "kitnet");
 		}
 
 	}

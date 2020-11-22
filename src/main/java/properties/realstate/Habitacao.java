@@ -95,12 +95,12 @@ public class Habitacao extends RealStateHtml {
 	@Override
 	public Map<String, String> getPayload() {
 		LinkedHashMap<String, String> payload = new LinkedHashMap<>();
-		payload.put("negocio_", "2");
-		payload.put("type_", type.equals(PropertyType.Apartment) ? "5" : "4");
+		payload.put("negocio_", action.equals(ActionType.RENT) ? "2" : "1");
+		payload.put("tipo_", (String) getTypeValues().get(type));
 		payload.put("cidade_", "1");
 		payload.put("bairro_", "");
 		payload.put("quartos_", "");
-		payload.put("page", String.valueOf(page));
+		payload.put("quartos_", String.valueOf(page));
 		return payload;
 	}
 
@@ -172,7 +172,7 @@ public class Habitacao extends RealStateHtml {
 
 		@Override
 		public void loadAdvertiser() {
-			setAdvertiser("Habita��o");
+			setAdvertiser("Habitação");
 		}
 
 		@Override
@@ -183,7 +183,7 @@ public class Habitacao extends RealStateHtml {
 				String valor = dado.text().toLowerCase().trim();
 				String[] separado = valor.split(":");
 				if (separado.length == 2) {
-					if (valor.contains("condom�nio")) {
+					if (valor.contains("condomínio")) {
 						valor = separado[1].trim();
 						setCondominium(textoParaReal(valor));
 					} else if (valor.contains("garagem")) {
@@ -203,16 +203,14 @@ public class Habitacao extends RealStateHtml {
 	private class TypeValues extends PropertyTypeValues<String> {
 
 		public TypeValues() {
-			add(PropertyType.House, "1");
-			add(PropertyType.Apartment, "2");
-			add(PropertyType.Ground, "3");
-			add(PropertyType.CommercialRoom, "4");
-			add(PropertyType.Roof, "5");
-			add(PropertyType.GroundFloorShop, "6");
-			add(PropertyType.OfficeBuilding, "7");
-			add(PropertyType.CountryHouse, "8");
-			add(PropertyType.Shed, "9");
-			add(PropertyType.TwoStoryhouse, "10");
+			add(PropertyType.Apartment, "5");
+			add(PropertyType.House, "4");
+			add(PropertyType.Ground, "6");
+			add(PropertyType.Room, "7");
+			add(PropertyType.Shed, "19");
+			add(PropertyType.CommercialProperty, "20");
+			add(PropertyType.SmallFarmCountryHouse, "21");
+			add(PropertyType.FishPay, "22");
 		}
 
 	}

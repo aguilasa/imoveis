@@ -137,8 +137,11 @@ public class DinamicaSul extends RealStateHtml {
 
 		@Override
 		public void loadCondominium() {
-			String value = xpath().text("//li[strong=\"Valor Condomínio:\"]/span[text()]");
-			setCondominium(buscarCondominio(value));
+			Elements dados = getDocument().select("div.detail-body div");
+			if (!dados.isEmpty()) {
+				String value = dados.first().text();
+				setCondominium(buscarCondominio(value));
+			}
 		}
 
 		@Override
@@ -176,7 +179,7 @@ public class DinamicaSul extends RealStateHtml {
 	}
 
 	public static void main(String[] args) {
-		RealState imobiliaria = new DinamicaSul(PropertyType.Apartment, ActionType.RENT);
+		RealState imobiliaria = new DinamicaSul(PropertyType.House, ActionType.RENT);
 		List<IProperty> imos = imobiliaria.getProperties();
 		Excel.getInstance().clear();
 		for (IProperty imo : imos) {

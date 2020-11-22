@@ -18,8 +18,8 @@ public class RunnerFactory {
 	public static final List<String> CLASSES = Arrays.asList("Abelardo", "ACRC", "Alianca", "Caravela", "Conexao",
 			"DinamicaSul", "Habitacao", "ImoveisSc", "LFernando", "Orbi", "Portal", "Tropical", "Zelt");
 	public static final PropertyType[] PARAMETERS = { PropertyType.Apartment, PropertyType.House };
-	public static final List<String> IGNORE = Arrays.asList("DinamicaSul", "Habitacao", "ImoveisSc", "LFernando",
-			"Orbi", "Portal", "Tropical");
+	public static final List<String> IGNORE = Arrays.asList("Habitacao", "ImoveisSc", "LFernando", "Portal",
+			"Tropical");
 
 	public static List<Runnable> getRunners() {
 		return getRunners(new ArrayList<>(CLASSES));
