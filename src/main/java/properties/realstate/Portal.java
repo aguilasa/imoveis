@@ -18,152 +18,178 @@ import properties.base.RealState;
 import properties.base.RealStateHtml;
 import properties.base.PropertyHtml;
 import properties.base.PropertyType;
+import properties.base.PropertyTypeValues;
 import properties.excel.Excel;
 import properties.utils.Utils;
 
 public class Portal extends RealStateHtml {
 
-    private static final String URLBASE = "http://vale.imoveisportal.com";
+	private static final String URLBASE = "http://vale.imoveisportal.com";
 
-    public Portal(PropertyType type, ActionType action) {
-        super(type, action);
-    }
+	public Portal(PropertyType type, ActionType action) {
+		super(type, action);
+	}
 
-    @Override
-    public Elements getElements() {
-        Document document = getDocument(getUrl());
-        return document.select("div.row.row-list div.col-xs-12.col-sm-6.col-md-4");
-    }
+	@Override
+	public Elements getElements() {
+		Document document = getDocument(getUrl());
+		return document.select("div.row.row-list div.col-xs-12.col-sm-6.col-md-4");
+	}
 
-    @Override
-    public String getUrl() {
-        return URLBASE.concat("/imoveis");
-    }
+	@Override
+	public String getUrl() {
+		return URLBASE.concat("/imoveis");
+	}
 
-    @Override
-    public int getPages() {
-        Document document = getDocument();
-        String pagecao = document.select("h4.text-muted").first().text();
-        pagecao = pagecao.replaceAll("\\D+", "").trim();
-        double valor = Double.valueOf(pagecao);
-        return (int) Math.ceil(valor / 24.0);
-    }
+	@Override
+	public int getPages() {
+		Document document = getDocument();
+		String pagecao = document.select("h4.text-muted").first().text();
+		pagecao = pagecao.replaceAll("\\D+", "").trim();
+		double valor = Double.valueOf(pagecao);
+		return (int) Math.ceil(valor / 24.0);
+	}
 
-    @Override
-    public Map<String, String> getPayload() {
-        LinkedHashMap<String, String> payload = new LinkedHashMap<>();
-        payload.put("opcao", "alugar");
-        payload.put("cidades", "blumenau");
-        payload.put("types", type.equals(PropertyType.Apartment) ? "apartamento" : "casa");
-        if (page > 1) {
-            int valor = (page - 1) * 24;
-            payload.put("page", String.valueOf(valor));
-        }
-        return payload;
-    }
+	@Override
+	public Map<String, String> getPayload() {
+		LinkedHashMap<String, String> payload = new LinkedHashMap<>();
+		payload.put("opcao", "alugar");
+		payload.put("cidades", "blumenau");
+		payload.put("types", type.equals(PropertyType.Apartment) ? "apartamento" : "casa");
+		if (page > 1) {
+			int valor = (page - 1) * 24;
+			payload.put("page", String.valueOf(valor));
+		}
+		return payload;
+	}
 
-    @Override
-    public IProperty newProperty(Element elemento) {
-        return new ImovelImpl(elemento, type);
-    }
+	@Override
+	public IProperty newProperty(Element elemento) {
+		return new ImovelImpl(elemento, type);
+	}
 
-    private class ImovelImpl extends PropertyHtml {
+	@Override
+	public PropertyTypeValues<?> getTypeValues() {
+		if (typeValues == null) {
+			typeValues = new TypeValues();
+		}
+		return typeValues;
+	}
 
-        public ImovelImpl(Element elemento, PropertyType type) {
-            super(elemento, type);
-        }
+	private class ImovelImpl extends PropertyHtml {
 
-        @Override
-        public void loadName() {
-            setName(elemento.select("div.truncate").first().text().replace(", Blumenau", "").trim());
-        }
+		public ImovelImpl(Element elemento, PropertyType type) {
+			super(elemento, type);
+		}
 
-        @Override
-        public void loadUrl() {
-            Element link = elemento.select("a").first();
-            setUrl(URLBASE.concat(link.attr("href")));
-        }
+		@Override
+		public void loadName() {
+			setName(elemento.select("div.truncate").first().text().replace(", Blumenau", "").trim());
+		}
 
-        @Override
-        public void loadPrice() {
-            Element valor = elemento.select("div.panel-footer strong").first();
-            if (valor != null) {
-                setPriceStr(valor.text().replace("/ m�s", "").replace("R$", "").trim());
-                try {
-                    setPrice(textoParaReal(getPriceStr()));
-                } catch (Exception e) {
-                    setPrice(0);
-                }
-            }
-        }
+		@Override
+		public void loadUrl() {
+			Element link = elemento.select("a").first();
+			setUrl(URLBASE.concat(link.attr("href")));
+		}
 
-        @Override
-        public void loadDistrict() {
-            setDistrict(elemento.select("div.truncate").first().text().replace(", Blumenau", "").trim());
-        }
+		@Override
+		public void loadPrice() {
+			Element valor = elemento.select("div.panel-footer strong").first();
+			if (valor != null) {
+				setPriceStr(valor.text().replace("/ m�s", "").replace("R$", "").trim());
+				try {
+					setPrice(textoParaReal(getPriceStr()));
+				} catch (Exception e) {
+					setPrice(0);
+				}
+			}
+		}
 
-        @Override
-        public void loadRooms() {
-            Elements dados = elemento.select("div.tags div.label");
-            for (Element dado : dados) {
-                String valor = dado.text().trim();
-                if (valor.contains("dormit�rio")) {
-                    setRooms(Integer.valueOf(valor.split(" ")[0].trim()));
-                } else if (valor.contains("garage")) {
-                    setParkingSpaces(Integer.valueOf(valor.split(" ")[0].trim()));
-                } else if (valor.contains("m�")) {
-                    setArea(textoParaReal(valor.split("m�")[0].trim()));
-                } else if (valor.contains("suite")) {
-                    setSuites(Integer.valueOf(valor.split(" ")[0].trim()));
-                }
-            }
-        }
+		@Override
+		public void loadDistrict() {
+			setDistrict(elemento.select("div.truncate").first().text().replace(", Blumenau", "").trim());
+		}
 
-        @Override
-        public void loadParkingSpaces() {
-        }
+		@Override
+		public void loadRooms() {
+			Elements dados = elemento.select("div.tags div.label");
+			for (Element dado : dados) {
+				String valor = dado.text().trim();
+				if (valor.contains("dormit�rio")) {
+					setRooms(Integer.valueOf(valor.split(" ")[0].trim()));
+				} else if (valor.contains("garage")) {
+					setParkingSpaces(Integer.valueOf(valor.split(" ")[0].trim()));
+				} else if (valor.contains("m�")) {
+					setArea(textoParaReal(valor.split("m�")[0].trim()));
+				} else if (valor.contains("suite")) {
+					setSuites(Integer.valueOf(valor.split(" ")[0].trim()));
+				}
+			}
+		}
 
-        @Override
-        public void loadSuites() {
-        }
+		@Override
+		public void loadParkingSpaces() {
+		}
 
-        @Override
-        public void loadArea() {
-        }
+		@Override
+		public void loadSuites() {
+		}
 
-        @Override
-        public void loadAdvertiser() {
-            setAdvertiser("Portal");
-        }
+		@Override
+		public void loadArea() {
+		}
 
-        @Override
-        public void loadCondominium() {
-            Document documento = getDocumento();
-            Elements dados = documento.select("ul.list-group li");
-            for (Element dado : dados) {
-                String valor = dado.text().toUpperCase().trim();
-                if (valor.contains("CONDOM")) {
-                    setCondominium(extrairValor(valor));
-                }
-            }
-        }
+		@Override
+		public void loadAdvertiser() {
+			setAdvertiser("Portal");
+		}
 
-        @Override
-        public void loadAddress() {
-        }
+		@Override
+		public void loadCondominium() {
+			Document documento = getDocumento();
+			Elements dados = documento.select("ul.list-group li");
+			for (Element dado : dados) {
+				String valor = dado.text().toUpperCase().trim();
+				if (valor.contains("CONDOM")) {
+					setCondominium(extrairValor(valor));
+				}
+			}
+		}
 
-    }
+		@Override
+		public void loadAddress() {
+		}
 
-    public static void main(String[] args) {
-        RealState imobiliaria = new Portal(PropertyType.Apartment, ActionType.RENT);
-        List<IProperty> imos = imobiliaria.getProperties();
-        Excel.getInstance().clear();
-        for (IProperty imo : imos) {
-            Excel.getInstance().addImovel(imo);
-            JSONObject json = Utils.imovelToJson(imo);
-            System.out.println(json.toString());
-        }
-        Excel.getInstance().gerar();
-    }
+	}
+
+	private class TypeValues extends PropertyTypeValues<String> {
+
+		public TypeValues() {
+			add(PropertyType.House, "1");
+			add(PropertyType.Apartment, "2");
+			add(PropertyType.Ground, "3");
+			add(PropertyType.CommercialRoom, "4");
+			add(PropertyType.Roof, "5");
+			add(PropertyType.GroundFloorShop, "6");
+			add(PropertyType.OfficeBuilding, "7");
+			add(PropertyType.CountryHouse, "8");
+			add(PropertyType.Shed, "9");
+			add(PropertyType.TwoStoryhouse, "10");
+		}
+
+	}
+
+	public static void main(String[] args) {
+		RealState imobiliaria = new Portal(PropertyType.Apartment, ActionType.RENT);
+		List<IProperty> imos = imobiliaria.getProperties();
+		Excel.getInstance().clear();
+		for (IProperty imo : imos) {
+			Excel.getInstance().addImovel(imo);
+			JSONObject json = Utils.imovelToJson(imo);
+			System.out.println(json.toString());
+		}
+		Excel.getInstance().gerar();
+	}
 
 }

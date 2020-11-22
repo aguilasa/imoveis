@@ -30,6 +30,7 @@ import properties.base.RealStateJson;
 import properties.base.PropertyJson;
 import properties.base.Parameter;
 import properties.base.PropertyType;
+import properties.base.PropertyTypeValues;
 import properties.utils.Utils;
 
 public class Orbi extends RealStateJson {
@@ -75,6 +76,14 @@ public class Orbi extends RealStateJson {
 	@Override
 	public IProperty newImovel(JSONObject elemento) {
 		return new Imovel(elemento, type);
+	}
+
+	@Override
+	public PropertyTypeValues<?> getTypeValues() {
+		if (typeValues == null) {
+			typeValues = new TypeValues();
+		}
+		return typeValues;
 	}
 
 	private JSONObject getJson(String url) throws Exception {
@@ -211,6 +220,23 @@ public class Orbi extends RealStateJson {
 				}
 			}
 			return "";
+		}
+
+	}
+
+	private class TypeValues extends PropertyTypeValues<String> {
+
+		public TypeValues() {
+			add(PropertyType.House, "1");
+			add(PropertyType.Apartment, "2");
+			add(PropertyType.Ground, "3");
+			add(PropertyType.CommercialRoom, "4");
+			add(PropertyType.Roof, "5");
+			add(PropertyType.GroundFloorShop, "6");
+			add(PropertyType.OfficeBuilding, "7");
+			add(PropertyType.CountryHouse, "8");
+			add(PropertyType.Shed, "9");
+			add(PropertyType.TwoStoryhouse, "10");
 		}
 
 	}

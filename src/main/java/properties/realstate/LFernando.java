@@ -21,176 +21,204 @@ import properties.base.RealState;
 import properties.base.RealStateHtml;
 import properties.base.PropertyHtml;
 import properties.base.PropertyType;
+import properties.base.PropertyTypeValues;
 import properties.excel.Excel;
 import properties.utils.HttpClientHelper;
 import properties.utils.Utils;
 
 public class LFernando extends RealStateHtml {
 
-    private static final String BASE = "www.lfernando.com.br";
-    private static final String URLBASE = "http://" + BASE + "/";
+	private static final String BASE = "www.lfernando.com.br";
+	private static final String URLBASE = "http://" + BASE + "/";
 
-    public LFernando(PropertyType type, ActionType action) {
-        super(type, action);
-    }
+	public LFernando(PropertyType type, ActionType action) {
+		super(type, action);
+	}
 
-    @Override
-    public Document getDocument() {
-        return getDocument(getUrl());
-    }
+	@Override
+	public Document getDocument() {
+		return getDocument(getUrl());
+	}
 
-    @Override
-    public Document getDocument(String url) {
-        try (HttpClientHelper helper = new HttpClientHelper()) {
-            HttpGet httpget = helper.httpGet("http://www.lfernando.com.br/");
-            helper.execute(httpget);
-            httpget = helper.httpGet("http://www.lfernando.com.br/filial?id=1");
-            helper.execute(httpget);
+	@Override
+	public Document getDocument(String url) {
+		try (HttpClientHelper helper = new HttpClientHelper()) {
+			HttpGet httpget = helper.httpGet("http://www.lfernando.com.br/");
+			helper.execute(httpget);
+			httpget = helper.httpGet("http://www.lfernando.com.br/filial?id=1");
+			helper.execute(httpget);
 
-            httpget = helper.httpGet(url);
-            String html = helper.execute(httpget);
-            return Jsoup.parse(html);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
+			httpget = helper.httpGet(url);
+			String html = helper.execute(httpget);
+			return Jsoup.parse(html);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
 
-    @Override
-    public Elements getElements() {
-        Document document = getDocument();
-        return document.select("div.imovel");
-    }
+	@Override
+	public Elements getElements() {
+		Document document = getDocument();
+		return document.select("div.imovel");
+	}
 
-    @Override
-    public String getUrl() {
-        try {
-            URIBuilder builder = new URIBuilder();
-            builder.setScheme("http").setHost(BASE).setPath("/pesquisa");
-            Map<String, String> payload = getPayload();
-            Iterator<String> iterator = payload.keySet().iterator();
-            while (iterator.hasNext()) {
-                String name = iterator.next();
-                String value = payload.get(name);
-                builder.addParameter(name, value);
-            }
-            return builder.build().toString();
-        } catch (Exception e) {}
-        return "";
-    }
+	@Override
+	public String getUrl() {
+		try {
+			URIBuilder builder = new URIBuilder();
+			builder.setScheme("http").setHost(BASE).setPath("/pesquisa");
+			Map<String, String> payload = getPayload();
+			Iterator<String> iterator = payload.keySet().iterator();
+			while (iterator.hasNext()) {
+				String name = iterator.next();
+				String value = payload.get(name);
+				builder.addParameter(name, value);
+			}
+			return builder.build().toString();
+		} catch (Exception e) {
+		}
+		return "";
+	}
 
-    @Override
-    public int getPages() {
-        Document document = getDocument();
-        Element elemento = document.select("a.pagecao_page").last();
-        if (elemento != null) {
-            String valor = elemento.text().trim();
-            return Integer.valueOf(valor);
-        }
-        return 1;
-    }
+	@Override
+	public int getPages() {
+		Document document = getDocument();
+		Element elemento = document.select("a.pagecao_page").last();
+		if (elemento != null) {
+			String valor = elemento.text().trim();
+			return Integer.valueOf(valor);
+		}
+		return 1;
+	}
 
-    @Override
-    public Map<String, String> getPayload() {
-        LinkedHashMap<String, String> payload = new LinkedHashMap<>();
-        payload.put("opcao", "Loca��o");
-        payload.put("cidade", "Blumenau/SC");
-        payload.put("type", type.equals(PropertyType.Apartment) ? "Apartamento" : "Casa Residencial");
-        int init = (page - 1) * 15;
-        payload.put("init", String.valueOf(init));
-        return payload;
-    }
+	@Override
+	public Map<String, String> getPayload() {
+		LinkedHashMap<String, String> payload = new LinkedHashMap<>();
+		payload.put("opcao", "Loca��o");
+		payload.put("cidade", "Blumenau/SC");
+		payload.put("type", type.equals(PropertyType.Apartment) ? "Apartamento" : "Casa Residencial");
+		int init = (page - 1) * 15;
+		payload.put("init", String.valueOf(init));
+		return payload;
+	}
 
-    @Override
-    public IProperty newProperty(Element elemento) {
-        return new ImovelImpl(elemento, type);
-    }
+	@Override
+	public IProperty newProperty(Element elemento) {
+		return new ImovelImpl(elemento, type);
+	}
 
-    private class ImovelImpl extends PropertyHtml {
+	@Override
+	public PropertyTypeValues<?> getTypeValues() {
+		if (typeValues == null) {
+			typeValues = new TypeValues();
+		}
+		return typeValues;
+	}
 
-        public ImovelImpl(Element elemento, PropertyType type) {
-            super(elemento, type);
-        }
+	private class ImovelImpl extends PropertyHtml {
 
-        @Override
-        public void loadName() {
-        }
+		public ImovelImpl(Element elemento, PropertyType type) {
+			super(elemento, type);
+		}
 
-        @Override
-        public void loadUrl() {
-            Element link = elemento.select("div.imovel_imagem_container a").first();
-            setUrl(URLBASE.concat(link.attr("href")));
-        }
+		@Override
+		public void loadName() {
+		}
 
-        @Override
-        public void loadPrice() {
-            setPriceStr(elemento.select("div.imovel_preco span").first().text().replace("R$", "").trim());
-            try {
-                setPrice(textoParaReal(getPriceStr()));
-            } catch (Exception e) {
-                setPrice(0);
-            }
-        }
+		@Override
+		public void loadUrl() {
+			Element link = elemento.select("div.imovel_imagem_container a").first();
+			setUrl(URLBASE.concat(link.attr("href")));
+		}
 
-        @Override
-        public void loadDistrict() {
-            setDistrict(elemento.select("span.imovel_info_destaques_texto").first().text().replace("| Blumenau/SC", "").trim());
-            setName(getDistrict());
-        }
+		@Override
+		public void loadPrice() {
+			setPriceStr(elemento.select("div.imovel_preco span").first().text().replace("R$", "").trim());
+			try {
+				setPrice(textoParaReal(getPriceStr()));
+			} catch (Exception e) {
+				setPrice(0);
+			}
+		}
 
-        @Override
-        public void loadRooms() {
-            Elements dados = elemento.select("div.imovel_info_destaques span");
-            for (Element dado : dados) {
-                String valor = dado.text().toLowerCase().trim();
-                if (valor.contains("quarto")) {
-                    setRooms(Integer.valueOf(valor.split(" ")[0].trim()));
-                } else if (valor.contains("vaga")) {
-                    setParkingSpaces(Integer.valueOf(valor.split(" ")[0].trim()));
-                } else if (valor.contains("m�")) {
-                    setArea(Double.valueOf(valor.split("m�")[0].trim().replace(",", ".")));
-                } else if (valor.contains("suite")) {
-                    setSuites(Integer.valueOf(valor.split(" ")[0].trim()));
-                }
-            }
-        }
+		@Override
+		public void loadDistrict() {
+			setDistrict(elemento.select("span.imovel_info_destaques_texto").first().text().replace("| Blumenau/SC", "")
+					.trim());
+			setName(getDistrict());
+		}
 
-        @Override
-        public void loadParkingSpaces() {
-        }
+		@Override
+		public void loadRooms() {
+			Elements dados = elemento.select("div.imovel_info_destaques span");
+			for (Element dado : dados) {
+				String valor = dado.text().toLowerCase().trim();
+				if (valor.contains("quarto")) {
+					setRooms(Integer.valueOf(valor.split(" ")[0].trim()));
+				} else if (valor.contains("vaga")) {
+					setParkingSpaces(Integer.valueOf(valor.split(" ")[0].trim()));
+				} else if (valor.contains("m�")) {
+					setArea(Double.valueOf(valor.split("m�")[0].trim().replace(",", ".")));
+				} else if (valor.contains("suite")) {
+					setSuites(Integer.valueOf(valor.split(" ")[0].trim()));
+				}
+			}
+		}
 
-        @Override
-        public void loadSuites() {
-        }
+		@Override
+		public void loadParkingSpaces() {
+		}
 
-        @Override
-        public void loadArea() {
-        }
+		@Override
+		public void loadSuites() {
+		}
 
-        @Override
-        public void loadAdvertiser() {
-            setAdvertiser("LFernando");
-        }
+		@Override
+		public void loadArea() {
+		}
 
-        @Override
-        public void loadCondominium() {
-        }
+		@Override
+		public void loadAdvertiser() {
+			setAdvertiser("LFernando");
+		}
 
-        @Override
-        public void loadAddress() {
-        }
+		@Override
+		public void loadCondominium() {
+		}
 
-    }
+		@Override
+		public void loadAddress() {
+		}
 
-    public static void main(String[] args) {
-        RealState imobiliaria = new LFernando(PropertyType.Apartment, ActionType.RENT);
-        List<IProperty> imos = imobiliaria.getProperties();
-        Excel.getInstance().clear();
-        for (IProperty imo : imos) {
-            Excel.getInstance().addImovel(imo);
-            JSONObject json = Utils.imovelToJson(imo);
-            System.out.println(json.toString());
-        }
-        Excel.getInstance().gerar();
-    }
+	}
+
+	private class TypeValues extends PropertyTypeValues<String> {
+
+		public TypeValues() {
+			add(PropertyType.House, "1");
+			add(PropertyType.Apartment, "2");
+			add(PropertyType.Ground, "3");
+			add(PropertyType.CommercialRoom, "4");
+			add(PropertyType.Roof, "5");
+			add(PropertyType.GroundFloorShop, "6");
+			add(PropertyType.OfficeBuilding, "7");
+			add(PropertyType.CountryHouse, "8");
+			add(PropertyType.Shed, "9");
+			add(PropertyType.TwoStoryhouse, "10");
+		}
+
+	}
+
+	public static void main(String[] args) {
+		RealState imobiliaria = new LFernando(PropertyType.Apartment, ActionType.RENT);
+		List<IProperty> imos = imobiliaria.getProperties();
+		Excel.getInstance().clear();
+		for (IProperty imo : imos) {
+			Excel.getInstance().addImovel(imo);
+			JSONObject json = Utils.imovelToJson(imo);
+			System.out.println(json.toString());
+		}
+		Excel.getInstance().gerar();
+	}
 
 }

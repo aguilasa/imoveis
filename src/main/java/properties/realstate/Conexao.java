@@ -106,7 +106,7 @@ public class Conexao extends RealStateHtml {
 		@Override
 		public void loadDistrict() {
 			String value = xpath().text("//div[contains(@class, \"imovel-item-endereco\")]/span[text()]").trim();
-			setDistrict(value.replace("BLUMENAU / SC", "").replace("Bairro", "").trim());
+			setDistrict(value.replace("BLUMENAU / SC", "").replace("Bairro", "").replace("-", "").trim());
 		}
 
 		@Override

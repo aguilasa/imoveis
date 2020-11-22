@@ -19,6 +19,7 @@ import properties.base.RealState;
 import properties.base.RealStateHtml;
 import properties.base.PropertyHtml;
 import properties.base.PropertyType;
+import properties.base.PropertyTypeValues;
 import properties.utils.Utils;
 
 public class ImoveisSc extends RealStateHtml {
@@ -57,6 +58,14 @@ public class ImoveisSc extends RealStateHtml {
 	@Override
 	public IProperty newProperty(Element elemento) {
 		return new ImovelImpl(elemento, type);
+	}
+
+	@Override
+	public PropertyTypeValues<?> getTypeValues() {
+		if (typeValues == null) {
+			typeValues = new TypeValues();
+		}
+		return typeValues;
 	}
 
 	private class ImovelImpl extends PropertyHtml {
@@ -186,6 +195,23 @@ public class ImoveisSc extends RealStateHtml {
 			if (!selecao.isEmpty()) {
 				setAddress(selecao.first().text().trim());
 			}
+		}
+
+	}
+	
+	private class TypeValues extends PropertyTypeValues<String> {
+
+		public TypeValues() {
+			add(PropertyType.House, "1");
+			add(PropertyType.Apartment, "2");
+			add(PropertyType.Ground, "3");
+			add(PropertyType.CommercialRoom, "4");
+			add(PropertyType.Roof, "5");
+			add(PropertyType.GroundFloorShop, "6");
+			add(PropertyType.OfficeBuilding, "7");
+			add(PropertyType.CountryHouse, "8");
+			add(PropertyType.Shed, "9");
+			add(PropertyType.TwoStoryhouse, "10");
 		}
 
 	}
