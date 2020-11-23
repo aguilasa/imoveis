@@ -166,16 +166,21 @@ public class Portal extends RealStateHtml {
 	private class TypeValues extends PropertyTypeValues<String> {
 
 		public TypeValues() {
-			add(PropertyType.House, "1");
-			add(PropertyType.Apartment, "2");
-			add(PropertyType.Ground, "3");
-			add(PropertyType.CommercialRoom, "4");
-			add(PropertyType.Roof, "5");
-			add(PropertyType.GroundFloorShop, "6");
-			add(PropertyType.OfficeBuilding, "7");
-			add(PropertyType.CountryHouse, "8");
-			add(PropertyType.Shed, "9");
-			add(PropertyType.TwoStoryhouse, "10");
+			add(PropertyType.House, "23");
+			add(PropertyType.Apartment, "1");
+			add(PropertyType.Ground, "14");
+			add(PropertyType.Roof, "15");
+			add(PropertyType.Shed, "7");
+			add(PropertyType.TwoStoryhouse, "16");
+			add(PropertyType.OfficeBuilding, "11");
+			add(PropertyType.CommercialRoom, "13");
+			add(PropertyType.CountryHouse, "5");
+			add(PropertyType.GroundFloorShop, "10");
+			add(PropertyType.ResidentialBuilding, "12");
+			
+			add(PropertyType.CountryHouse, "5");
+			
+			
 		}
 
 	}
