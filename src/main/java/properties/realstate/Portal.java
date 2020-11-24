@@ -105,7 +105,8 @@ public class Portal extends RealStateHtml {
 		public void loadPrice() {
 			Element valor = elemento.select("span.title.title-2.price").first();
 			if (valor != null) {
-				setPriceStr(valor.text().replace("R$", "").trim());
+				String[] texts = valor.text().split("R\\$");
+				setPriceStr(texts[texts.length - 1].trim());
 				try {
 					setPrice(textoParaReal(getPriceStr()));
 				} catch (Exception e) {
