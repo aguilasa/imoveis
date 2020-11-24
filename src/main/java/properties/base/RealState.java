@@ -30,10 +30,17 @@ public abstract class RealState implements IRealState {
 	}
 
 	public List<IProperty> getProperties() {
-		if (!carregou) {
+		if (!ignore() && !carregou) {
 			load();
 		}
 		return properties;
+	}
+
+	public boolean ignore() {
+		if (getTypeValues() != null) {
+			return getTypeValues().get(type) == null;
+		}
+		return true;
 	}
 
 }

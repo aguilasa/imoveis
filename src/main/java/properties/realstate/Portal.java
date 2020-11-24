@@ -1,12 +1,13 @@
 package properties.realstate;
 
-import static properties.utils.Utils.extrairValor;
 import static properties.utils.Utils.textoParaReal;
 
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.json.JSONObject;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -14,17 +15,17 @@ import org.jsoup.select.Elements;
 
 import properties.base.ActionType;
 import properties.base.IProperty;
-import properties.base.RealState;
-import properties.base.RealStateHtml;
 import properties.base.PropertyHtml;
 import properties.base.PropertyType;
 import properties.base.PropertyTypeValues;
+import properties.base.RealState;
+import properties.base.RealStateHtml;
 import properties.excel.Excel;
 import properties.utils.Utils;
 
 public class Portal extends RealStateHtml {
 
-	private static final String URLBASE = "http://vale.imoveisportal.com";
+	private static final String URLBASE = "https://imoveisportal.com";
 
 	public Portal(PropertyType type, ActionType action) {
 		super(type, action);
@@ -33,31 +34,38 @@ public class Portal extends RealStateHtml {
 	@Override
 	public Elements getElements() {
 		Document document = getDocument(getUrl());
-		return document.select("div.row.row-list div.col-xs-12.col-sm-6.col-md-4");
+		return document.select("div.row.box.box-imovel");
 	}
 
 	@Override
 	public String getUrl() {
-		return URLBASE.concat("/imoveis");
+		return URLBASE.concat("/imoveis/busca");
 	}
 
 	@Override
 	public int getPages() {
+		int result = 1;
 		Document document = getDocument();
-		String pagecao = document.select("h4.text-muted").first().text();
-		pagecao = pagecao.replaceAll("\\D+", "").trim();
-		double valor = Double.valueOf(pagecao);
-		return (int) Math.ceil(valor / 24.0);
+		Elements dados = document.select("li.page-item a");
+		if (!dados.isEmpty()) {
+			for (Element e : dados) {
+				String valor = e.text();
+				if (NumberUtils.isCreatable(valor)) {
+					result = Integer.valueOf(valor);
+				}
+			}
+		}
+		return result;
 	}
 
 	@Override
 	public Map<String, String> getPayload() {
 		LinkedHashMap<String, String> payload = new LinkedHashMap<>();
-		payload.put("opcao", "alugar");
-		payload.put("cidades", "blumenau");
-		payload.put("types", type.equals(PropertyType.Apartment) ? "apartamento" : "casa");
+		payload.put("operacao", action.equals(ActionType.RENT) ? "locacao" : "venda");
+		payload.put("cidade", "4202404");
+		payload.put("tipo", (String) getTypeValues().get(type));
 		if (page > 1) {
-			int valor = (page - 1) * 24;
+			int valor = (page - 1) * 16;
 			payload.put("page", String.valueOf(valor));
 		}
 		return payload;
@@ -84,20 +92,20 @@ public class Portal extends RealStateHtml {
 
 		@Override
 		public void loadName() {
-			setName(elemento.select("div.truncate").first().text().replace(", Blumenau", "").trim());
+			setName(elemento.select("div.box-img.left-list").first().text().trim());
 		}
 
 		@Override
 		public void loadUrl() {
 			Element link = elemento.select("a").first();
-			setUrl(URLBASE.concat(link.attr("href")));
+			setUrl(link.attr("href"));
 		}
 
 		@Override
 		public void loadPrice() {
-			Element valor = elemento.select("div.panel-footer strong").first();
+			Element valor = elemento.select("span.title.title-2.price").first();
 			if (valor != null) {
-				setPriceStr(valor.text().replace("/ m�s", "").replace("R$", "").trim());
+				setPriceStr(valor.text().replace("R$", "").trim());
 				try {
 					setPrice(textoParaReal(getPriceStr()));
 				} catch (Exception e) {
@@ -108,28 +116,23 @@ public class Portal extends RealStateHtml {
 
 		@Override
 		public void loadDistrict() {
-			setDistrict(elemento.select("div.truncate").first().text().replace(", Blumenau", "").trim());
+			setDistrict(elemento.select("div.text p").first().text().replace("Blumenau - SC", "").trim());
 		}
 
 		@Override
 		public void loadRooms() {
-			Elements dados = elemento.select("div.tags div.label");
-			for (Element dado : dados) {
-				String valor = dado.text().trim();
-				if (valor.contains("dormit�rio")) {
-					setRooms(Integer.valueOf(valor.split(" ")[0].trim()));
-				} else if (valor.contains("garage")) {
-					setParkingSpaces(Integer.valueOf(valor.split(" ")[0].trim()));
-				} else if (valor.contains("m�")) {
-					setArea(textoParaReal(valor.split("m�")[0].trim()));
-				} else if (valor.contains("suite")) {
-					setSuites(Integer.valueOf(valor.split(" ")[0].trim()));
-				}
+			String value = xpath().text("//li/i[@class=\"fas fa-bed\"]/following-sibling::text()");
+			if (StringUtils.isNotEmpty(value)) {
+				setRooms(Integer.valueOf(value.trim()));
 			}
 		}
 
 		@Override
 		public void loadParkingSpaces() {
+			String value = xpath().text("//li/i[@class=\"fas fa-warehouse\"]/following-sibling::text()");
+			if (StringUtils.isNotEmpty(value)) {
+				setParkingSpaces(Integer.valueOf(value.trim()));
+			}
 		}
 
 		@Override
@@ -138,6 +141,10 @@ public class Portal extends RealStateHtml {
 
 		@Override
 		public void loadArea() {
+			String value = xpath().text("//li/i[@class=\"fas fa-ruler\"]/following-sibling::text()");
+			if (StringUtils.isNotEmpty(value)) {
+				setArea(textoParaReal(value.replace("m²", "").trim()));
+			}
 		}
 
 		@Override
@@ -147,14 +154,6 @@ public class Portal extends RealStateHtml {
 
 		@Override
 		public void loadCondominium() {
-			Document documento = getDocumento();
-			Elements dados = documento.select("ul.list-group li");
-			for (Element dado : dados) {
-				String valor = dado.text().toUpperCase().trim();
-				if (valor.contains("CONDOM")) {
-					setCondominium(extrairValor(valor));
-				}
-			}
 		}
 
 		@Override
@@ -166,8 +165,8 @@ public class Portal extends RealStateHtml {
 	private class TypeValues extends PropertyTypeValues<String> {
 
 		public TypeValues() {
-			add(PropertyType.House, "23");
 			add(PropertyType.Apartment, "1");
+			add(PropertyType.House, "23");
 			add(PropertyType.Ground, "14");
 			add(PropertyType.Roof, "15");
 			add(PropertyType.Shed, "7");
@@ -177,10 +176,12 @@ public class Portal extends RealStateHtml {
 			add(PropertyType.CountryHouse, "5");
 			add(PropertyType.GroundFloorShop, "10");
 			add(PropertyType.ResidentialBuilding, "12");
-			
-			add(PropertyType.CountryHouse, "5");
-			
-			
+			add(PropertyType.IndustrialArea, "2");
+			add(PropertyType.CountryHouse, "17");
+			add(PropertyType.SemiDetached, "26");
+			add(PropertyType.Studio, "9");
+			add(PropertyType.CommercialPoint, "25");
+			add(PropertyType.Inn, "18");
 		}
 
 	}

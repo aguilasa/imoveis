@@ -7,6 +7,7 @@ public enum PropertyType {
 	RuralArea("Área Rural"), //
 	House("Casa"), //
 	CommercialHouse("Casa Comercial"), //
+	ResidentialHouse("Casa Residencial"), //
 	CountryHouse("Chácara"), //
 	Roof("Cobertura"), //
 	Set("Conjunto"), //

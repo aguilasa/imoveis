@@ -43,9 +43,9 @@ public class LFernando extends RealStateHtml {
 	@Override
 	public Document getDocument(String url) {
 		try (HttpClientHelper helper = new HttpClientHelper()) {
-			HttpGet httpget = helper.httpGet("http://www.lfernando.com.br/");
+			HttpGet httpget = helper.httpGet("http://www.lfernando.com.br/cidade/");
 			helper.execute(httpget);
-			httpget = helper.httpGet("http://www.lfernando.com.br/filial?id=1");
+			httpget = helper.httpGet("http://www.lfernando.com.br/c_filial.php?id=1");
 			helper.execute(httpget);
 
 			httpget = helper.httpGet(url);
@@ -83,7 +83,7 @@ public class LFernando extends RealStateHtml {
 	@Override
 	public int getPages() {
 		Document document = getDocument();
-		Element elemento = document.select("a.pagecao_page").last();
+		Element elemento = document.select("a.paginacao_pagina").last();
 		if (elemento != null) {
 			String valor = elemento.text().trim();
 			return Integer.valueOf(valor);
@@ -94,9 +94,9 @@ public class LFernando extends RealStateHtml {
 	@Override
 	public Map<String, String> getPayload() {
 		LinkedHashMap<String, String> payload = new LinkedHashMap<>();
-		payload.put("opcao", "Loca��o");
+		payload.put("opcao", action.equals(ActionType.RENT) ? "Locação" : "Venda");
 		payload.put("cidade", "Blumenau/SC");
-		payload.put("type", type.equals(PropertyType.Apartment) ? "Apartamento" : "Casa Residencial");
+		payload.put("tipo", (String) getTypeValues().get(type));
 		int init = (page - 1) * 15;
 		payload.put("init", String.valueOf(init));
 		return payload;
@@ -157,8 +157,8 @@ public class LFernando extends RealStateHtml {
 					setRooms(Integer.valueOf(valor.split(" ")[0].trim()));
 				} else if (valor.contains("vaga")) {
 					setParkingSpaces(Integer.valueOf(valor.split(" ")[0].trim()));
-				} else if (valor.contains("m�")) {
-					setArea(Double.valueOf(valor.split("m�")[0].trim().replace(",", ".")));
+				} else if (valor.contains("m²")) {
+					setArea(Double.valueOf(valor.split("m²")[0].trim().replace(",", ".")));
 				} else if (valor.contains("suite")) {
 					setSuites(Integer.valueOf(valor.split(" ")[0].trim()));
 				}
@@ -195,16 +195,22 @@ public class LFernando extends RealStateHtml {
 	private class TypeValues extends PropertyTypeValues<String> {
 
 		public TypeValues() {
-			add(PropertyType.House, "1");
-			add(PropertyType.Apartment, "2");
-			add(PropertyType.Ground, "3");
-			add(PropertyType.CommercialRoom, "4");
-			add(PropertyType.Roof, "5");
-			add(PropertyType.GroundFloorShop, "6");
-			add(PropertyType.OfficeBuilding, "7");
-			add(PropertyType.CountryHouse, "8");
-			add(PropertyType.Shed, "9");
-			add(PropertyType.TwoStoryhouse, "10");
+			add(PropertyType.Apartment, "Apartamento");
+			add(PropertyType.House, "Casa");
+			add(PropertyType.CommercialHouse, "Casa Comercial");
+			add(PropertyType.ResidentialHouse, "Casa Residencial");
+			add(PropertyType.Roof, "Cobertura");
+			add(PropertyType.Company, "Empresa");
+			add(PropertyType.Shed, "Galpão");
+			add(PropertyType.Garage, "Garagem");
+			add(PropertyType.CommercialProperty, "Imóvel Comercial");
+			add(PropertyType.CommercialPoint, "Ponto Comercial");
+			add(PropertyType.Building, "Prédio");
+			add(PropertyType.Restaurant, "Restaurante");
+			add(PropertyType.CommercialRoom, "Sala Comercial");
+			add(PropertyType.SmallFarmCountryHouse, "Sítio/Chácara");
+			add(PropertyType.TwoStoryhouse, "Sobrado");
+			add(PropertyType.Ground, "Terreno");
 		}
 
 	}
