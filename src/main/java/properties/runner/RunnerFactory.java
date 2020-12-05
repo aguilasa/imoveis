@@ -17,7 +17,7 @@ public class RunnerFactory {
 	public static final String PACKAGE = "properties.realstate";
 	public static final List<String> CLASSES = Arrays.asList("Abelardo", "ACRC", "Alianca", "Caravela", "Conexao",
 			"DinamicaSul", "Habitacao", "ImoveisSc", "LFernando", "Orbi", "Portal", "Tropical", "Zelt", "Alameda",
-			"Bianor", "BluLar", "Icau", "LaVita", "SHS", "Terrena");
+			"Bianor", "BluLar", "Icau", "LaVita", "SHS", "Terrena", "Jacinto", "Conceito", "Cadore");
 	public static final PropertyType[] PARAMETERS = { PropertyType.Apartment, PropertyType.House,
 			PropertyType.ResidentialHouse, PropertyType.TwoStoryhouse };
 	public static final List<String> IGNORE = Arrays.asList("Habitacao", "ImoveisSc");
